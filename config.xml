@@ -19,6 +19,9 @@
     <preference name="orientation" value="default" />
     <preference name="target-device" value="universal" />
     <preference name="fullscreen" value="false" />
+	
+	<plugin name="File" value="org.apache.cordova.FileUtils" />
+	<plugin name="FileTransfer" value="org.apache.cordova.FileTransfer" />
 
     <icon src="icon.png" />    
 </widget>
