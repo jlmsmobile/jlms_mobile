@@ -1,8 +1,8 @@
 <html>
 <head>
 <script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
-<script>
-function getXml()(){   
+<script type="text/javascript">
+function getXml(){   
 	alert('eeee');
 	$.ajax({  
     url:$('xmlpath').val(),  
@@ -19,10 +19,14 @@ function getXml()(){
       $( "#bookInFo" ).append( XMLHttpRequest.responseXML);
     }
     });
+	
+	function fail(error) {
+		console.log(error.code);
+	}
 }   
 </script>
 </head>
 <body id="body" >
-<input name="xmlpath" id="xmlpath" /><button onclick="getXml()">Get XML</button>
+<input name="xmlpath" id="xmlpath" /><button onclick="getXml();">Get XML</button>
 </body>
 </html>
