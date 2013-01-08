@@ -4,7 +4,7 @@
 <script>
 function getXml()(){    
 	$.ajax({  
-    url:$('xmlpath'),  
+    url:$('xmlpath').val(),  
     dataType:'application/xml', 
     timeout:10000,  
     type:'POST',  
