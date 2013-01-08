@@ -1,95 +1,27 @@
-<!DOCTYPE HTML>
 <html>
-
 <head>
-
-<meta name = "viewport" content = "user-scalable=no,width=device-width" />
-
-<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-
-<title>Test Page</title>
-
-<script type="text/javascript" charset="utf-8" src="cordova.android.js"></script>
-
-<style type="text/css">
-
-* {
-
--webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-
-}
-
-</style>
-
-<script type="text/javascript" charset="utf-8">
-
-function init(){
-
-document.addEventListener("deviceready", ready, true);
-
-}
-
-function ready() {
-
-console.log("Thunderbirds are go!");
-
-}
-
-function download() {
-
-var remoteFile = "http://i3.kym-cdn.com/entries/icons/original/000/000/080/doubt.jpg";
-
-var localFileName = remoteFile.substring(remoteFile.lastIndexOf('/')+1);
-
-window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
-
-fileSystem.root.getFile(localFileName, {create: true, exclusive: false}, function(fileEntry) {
-
-var localPath = fileEntry.fullPath;
-
-if (device.platform === "Android" && localPath.indexOf("file://") === 0) {
-
-localPath = localPath.substring(7);
-
-}
-
-var ft = new FileTransfer();
-
-ft.download(remoteFile,
-
-localPath, function(entry) {
-
-var dwnldImg = document.getElementById("dwnldImg");
-
-dwnldImg.src = entry.fullPath;
-
-dwnldImg.style.visibility = "visible";
-
-dwnldImg.style.display = "block";
-}, fail);
-
-}, fail);
-
-}, fail);
-
-}
-
-function fail(error) {
-	console.log(error.code);
-}
-
+<script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
+<script>
+function getXml()(){    
+	$.ajax({  
+    url:$('xmlpath'),  
+    dataType:'application/xml', 
+    timeout:10000,  
+    type:'POST',  
+    success:function(data) {
+			alert(data);
+     },  
+    error:function(XMLHttpRequest,textStatus, errorThrown) {     
+      alert("Error status :"+textStatus);  
+      alert("Error type :"+errorThrown);  
+      alert("Error message :"+XMLHttpRequest.responseXML);
+      $( "#bookInFo" ).append( XMLHttpRequest.responseXML);
+    }
+    });
+}   
 </script>
-
 </head>
-
- 
-
-<body onload="init();">
-
-<a href="#" onclick="download();">Download and display image</a>
-
-<img src="" id="dwnldImg" style="display: none"/>
-
+<body id="body" >
+<input name="xmlpath" id="xmlpath" /><button onclick="getXml()">Get XML</button>
 </body>
-
 </html>
