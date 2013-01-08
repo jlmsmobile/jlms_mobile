@@ -2,15 +2,14 @@
 <head>
 <script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
 <script type="text/javascript">
-function getXml(){   
-	alert('eeee');
+function getXml(){   	
 	$.ajax({  
     url:$('xmlpath').val(),  
     dataType:'application/xml', 
     timeout:10000,  
     type:'POST',  
     success:function(data) {
-			alert(data);
+			alert('success');
      },  
     error:function(XMLHttpRequest,textStatus, errorThrown) {     
       alert("Error status :"+textStatus);  
