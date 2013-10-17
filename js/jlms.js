@@ -461,9 +461,4 @@ $(document).ready( function() {
 			$('#loginPage-first #password').val('password');		
 		})		
 	});					
-})		
-
-jlms.onReady = function() {	
-	alert(123);
-	jlms.login();		
-}	
+})
