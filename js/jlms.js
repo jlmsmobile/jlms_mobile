@@ -463,6 +463,7 @@ $(document).ready( function() {
 	});					
 })		
 
-jlms.onReady = function() {			
+jlms.onReady = function() {	
+	alert(123);
 	jlms.login();		
 }	
