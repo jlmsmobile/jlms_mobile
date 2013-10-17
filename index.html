@@ -1,26 +1,34 @@
 <!DOCTYPE html> 
 <html> 
 <head> 
-	<title>Dashboard</title> 	
+	<title>Main page</title> 
+	
 	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />	
-	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>	
+	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>		
 	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>		
 	<script src="js/cordova-2.3.0.js"></script>		
-	<script src="js/jlms.js"></script>
+	<script src="js/jlms.js"></script>	
+	<style type="text/css">
+		#login label{ color: #ffffff;}		
+		.ui-grid-d { margin: 3% 0; }
+		.ui-grid-d .ui-block-a { width: 20%; }
+		.ui-grid-d .ui-block-b { width: 50%; }
+		.ui-grid-d .ui-block-c { width: 30%; }			
+	</style>
+	<script type="text/javascript">
+           app.initialize();
+    </script>
 </head> 
-<body>
+<body> 
 <!-- Start of first page -->
-<div data-role="page" id="dashboardPage">
-	<div data-role="header">		
-		<a href="setup.html" data-icon="gear">Setup</a>
-		<h1>Dashboard</h1>
-		<a href="login.html" data-icon="gear">Login</a>
-	</div>
-	<div id="content" data-role="content">				
-	</div><!-- /content -->	
-	<div data-role="footer" data-position="fixed">
-		<h4></h4>
-	</div><!-- /footer -->
+<div data-role="page" id="indexPage">
+<div id="content" data-role="content">
+<p align="center">Welcome</p>	
+<p align="center">JoomlaLMs mobile</p>
+<p align="center">client</p>
+</div><!-- /content -->	
 </div><!-- /page -->
 </body>
+</html>
