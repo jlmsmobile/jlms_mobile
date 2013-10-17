@@ -13,6 +13,12 @@ var jlms = {
 		$( "#warningDiv" ).text(msg);
 		$( "#warningDiv" ).popup('open');
 	},
+	initialize: function() {
+        this.bindEvents();
+    },
+	bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
 	getAuthLink: function( link ) {		
 		
 		var access = jlms.access();					
@@ -461,4 +467,8 @@ $(document).ready( function() {
 			$('#loginPage-first #password').val('password');		
 		})		
 	});					
-})
+})		
+
+jlms.onReady = function() {			
+	jlms.login();		
+}	
