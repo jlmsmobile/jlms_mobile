@@ -217,6 +217,8 @@ var jlms = {
 						$.mobile.changePage( "dashboard.html" );
 					},		
 			        error: function( jqXHR, textStatus, errorThrown){							
+						alert(errorThrown);
+						alert(textStatus);
 						$.mobile.changePage( "login-first.html" );						
 			        }
 			    });						
@@ -421,6 +423,7 @@ $(document).ready( function() {
 			});
 			text += ']}';									
 			//alert(text);
+			
 			jlms.writeToFile( jlms.consts.FILE_NAME_USERSETUP, text );
 			$.mobile.changePage( "dashboard.html" );
 		})
