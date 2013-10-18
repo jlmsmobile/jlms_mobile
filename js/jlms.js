@@ -85,9 +85,11 @@ var jlms = {
 		return jlms.instances['setup'];
 	},	
 	downloadFile: function(sourceUri, destDir) {			
-		jlms.uri = sourceUri;					
+		jlms.uri = sourceUri;	
+		alert("filesystem: " + jlms.fileSystem);					
 		if( jlms.fileSystem !== null ) 
 		{			
+			alert("destdir: " + destDir);					
 			if( destDir !== undefined ) 
 			{
 				jlms.fileSystem.root.getDirectory( destDir, {create: true}, jlms.onDirectoryGetSuccess, jlms.fail );				
@@ -111,7 +113,8 @@ var jlms = {
 		jlms.fileSystem.root.getDirectory( dirName, {create: false}, jlms.onDirectoryGetSuccess, jlms.fail );
 		return jlms.dir;
 	},	
-	onFileSystemSuccess: function(fileSystem) {			
+	onFileSystemSuccess: function(fileSystem) {		
+		alert("onFileSystemSuccess: " + destDir);
 		jlms.fileSystem = fileSystem;			
 		jlms.onReady();
 	},	
