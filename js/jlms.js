@@ -112,12 +112,10 @@ var jlms = {
 		return jlms.dir;
 	},	
 	onFileSystemSuccess: function(fileSystem) {			
-		jlms.fileSystem = fileSystem;	
-		console.log('File system success');		
+		jlms.fileSystem = fileSystem;			
 		jlms.onReady();
 	},	
-	onFileGetSuccess: function(fileEntry) {
-		console.log('File get success');		
+	onFileGetSuccess: function(fileEntry) {		
 		jlms.fileEntry = fileEntry;		
 		//jlms.fileEntry.remove();
 		fileEntry.file( jlms.gotFile, jlms.fail);
@@ -149,8 +147,7 @@ var jlms = {
 		//alert("download complete2: " + fileEntry.fullPath);			
 		fileEntry.file( jlms.gotFile, jlms.fail);		
 	},
-    onDeviceReady: function() {   		
-		console.log('device ready');
+    onDeviceReady: function() {   				
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, jlms.onFileSystemSuccess, jlms.fail);		
     },
 	getData: function() {			
@@ -465,7 +462,6 @@ $(document).ready( function() {
 	});					
 })		
 
-jlms.onReady = function() {	
-	console.log('login page run!');
+jlms.onReady = function() {		
 	jlms.login();		
 }	
