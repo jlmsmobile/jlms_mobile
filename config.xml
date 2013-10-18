@@ -20,22 +20,18 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         id        = "io.cordova.helloCordova"
         version   = "2.0.0">
-    <name>Hello Cordova</name>
+    <name>JLMS Mobile Client</name>
 
-    <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+    <description>        
     </description>
 
-    <author href="http://cordova.io" email="dev@cordova.apache.org">
-        Apache Cordova Team
+    <author href="http://joomlalms.com" email="smco3000@yahoo.com">
+        BelItSoft
     </author>
 
     <access origin="*"/>
-
-    <!-- <content src="http://mysite.com/myapp.html" /> for external pages -->
+    
     <content src="index.html" />
-
-    <preference name="loglevel" value="DEBUG" />
     <!--
       <preference name="splashscreen" value="resourceName" />
       <preference name="backgroundColor" value="0xFFF" />
