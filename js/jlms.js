@@ -231,7 +231,6 @@ var jlms = {
 						xhr.setRequestHeader('Authorization', jlms.make_base_auth(name, pass)); 
 					},
 					success: function(data) {						
-						alert('success');
 						site = site.replace(/"/g, '\\"');
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
@@ -252,7 +251,7 @@ var jlms = {
 		
 		jlms.counter = 0;
 		jlms.onDownloadSuccess = function(fileEntry) {		
-			//alert("download complete1: " + fileEntry.fullPath);			
+			alert("download complete1: " + fileEntry.fullPath);			
 		
 			fileEntry.file( jlms.gotFile, jlms.fail);				
 		
