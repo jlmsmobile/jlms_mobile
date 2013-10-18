@@ -185,8 +185,8 @@ var jlms = {
 		return data;
 	},
 	writeToFile: function( fileName, text ) {		
-		jlms.fileSystem.root.getFile( fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail );		
-		alert(fileName);
+		jlms.fileSystem.root.getFile( fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail );				
+		alert(jlms.fileEntry);
 		jlms.fileEntry.writeText = text;			
 		alert("2");
 		jlms.fileEntry.createWriter(jlms.gotFileWriter, jlms.fail);
