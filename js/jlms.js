@@ -221,8 +221,9 @@ var jlms = {
 						$.mobile.changePage( "login-first.html" );						
 			        }
 			    });						
-			} else {							
-				$.ajax({
+			} else {	
+				alert(site+jlms.consts.AUTH_PAGE);
+				$.ajax({					
 					url: site+jlms.consts.AUTH_PAGE,
 					type: 'post',
 					dataType: 'json', 
@@ -235,13 +236,12 @@ var jlms = {
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
 						
-						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';
-						alert(access);
+						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';						
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
 						jlms.synchConfig();					
 					},		
 			        error: function( jqXHR, textStatus, errorThrown){						
-						alert(textStatus);						
+						alert(errorThrown);						
 			        }
 			    });			
 			}		
