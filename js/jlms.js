@@ -221,8 +221,7 @@ var jlms = {
 						$.mobile.changePage( "login-first.html" );						
 			        }
 			    });						
-			} else {	
-				alert(name, pass);
+			} else {					
 				$.ajax({					
 					url: site+jlms.consts.AUTH_PAGE,
 					type: 'post',
@@ -241,7 +240,7 @@ var jlms = {
 						jlms.synchConfig();					
 					},		
 			        error: function( jqXHR, textStatus, errorThrown){						
-						alert(textStatus.' '.errorThrown);						
+						alert(textStatus+' '+errorThrown);
 			        }
 			    });			
 			}		
