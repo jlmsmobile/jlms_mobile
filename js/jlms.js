@@ -237,7 +237,8 @@ var jlms = {
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
 						
-						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';						
+						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';
+						alert(access);
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
 						alert("writed");
 						jlms.synchConfig();					

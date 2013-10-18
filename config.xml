@@ -29,7 +29,7 @@
         BelItSoft
     </author>
 
-    <access origin="*"/>
+    <access origin="*"/>	
     
     <content src="index.html" />
     <!--
