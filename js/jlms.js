@@ -186,8 +186,11 @@ var jlms = {
 	},
 	writeToFile: function( fileName, text ) {		
 		jlms.fileSystem.root.getFile( fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail );		
-		jlms.fileEntry.writeText = text;	
+		alert(fileName);
+		jlms.fileEntry.writeText = text;			
+		alert("2");
 		jlms.fileEntry.createWriter(jlms.gotFileWriter, jlms.fail);
+		alert("3");
 	},
 	gotFileWriter: function( writer ) {       			
         writer.write( jlms.fileEntry.writeText );
@@ -237,10 +240,9 @@ var jlms = {
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
 						
-						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';
-						alert(access);
+						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';						
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
-						alert("writed");
+						alert("file writed");
 						jlms.synchConfig();					
 						alert("synched");
 					},		
