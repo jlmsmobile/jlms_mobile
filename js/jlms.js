@@ -222,7 +222,7 @@ var jlms = {
 			        }
 			    });						
 			} else {	
-				alert(site+jlms.consts.AUTH_PAGE);
+				alert(name, pass);
 				$.ajax({					
 					url: site+jlms.consts.AUTH_PAGE,
 					type: 'post',
@@ -241,7 +241,7 @@ var jlms = {
 						jlms.synchConfig();					
 					},		
 			        error: function( jqXHR, textStatus, errorThrown){						
-						alert(errorThrown);						
+						alert(textStatus.' '.errorThrown);						
 			        }
 			    });			
 			}		
