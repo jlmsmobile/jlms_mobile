@@ -114,7 +114,7 @@ var jlms = {
 		return jlms.dir;
 	},	
 	onFileSystemSuccess: function(fileSystem) {		
-		alert("onFileSystemSuccess: " + destDir);
+		alert("onFileSystemSuccess: ");
 		jlms.fileSystem = fileSystem;			
 		jlms.onReady();
 	},	
