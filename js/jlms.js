@@ -13,12 +13,6 @@ var jlms = {
 		$( "#warningDiv" ).text(msg);
 		$( "#warningDiv" ).popup('open');
 	},
-	initialize: function() {
-        this.bindEvents();
-    },
-	bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-    },
 	getAuthLink: function( link ) {		
 		
 		var access = jlms.access();					
@@ -118,10 +112,12 @@ var jlms = {
 		return jlms.dir;
 	},	
 	onFileSystemSuccess: function(fileSystem) {			
-		jlms.fileSystem = fileSystem;		
+		jlms.fileSystem = fileSystem;	
+		console.log('File system success');		
 		jlms.onReady();
 	},	
-	onFileGetSuccess: function(fileEntry) {		
+	onFileGetSuccess: function(fileEntry) {
+		console.log('File get success');		
 		jlms.fileEntry = fileEntry;		
 		//jlms.fileEntry.remove();
 		fileEntry.file( jlms.gotFile, jlms.fail);
@@ -129,9 +125,7 @@ var jlms = {
 	gotFile: function(file)	{				
 		jlms.file = file;				
 	},
-	onReady: function() {
-		
-	},
+	onReady: function() {},
 	readAsText: function() {				
 		var reader = new FileReader();
 
@@ -156,6 +150,7 @@ var jlms = {
 		fileEntry.file( jlms.gotFile, jlms.fail);		
 	},
     onDeviceReady: function() {   		
+		console.log('device ready');
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, jlms.onFileSystemSuccess, jlms.fail);		
     },
 	getData: function() {			
@@ -351,6 +346,7 @@ var jlms = {
 document.addEventListener("deviceready", jlms.onDeviceReady, false);
 
 $(document).ready( function() {		
+	console.log('document ready');
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;												
 	
@@ -469,6 +465,7 @@ $(document).ready( function() {
 	});					
 })		
 
-jlms.onReady = function() {			
+jlms.onReady = function() {	
+	console.log('login page run!');
 	jlms.login();		
 }	
