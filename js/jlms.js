@@ -196,7 +196,7 @@ var jlms = {
 		return "Basic " + hash;
 	},
 	login: function( site, name, pass) {			
-			alert('login');
+			
 			if( site === undefined ) 
 			{				
 				var access = jlms.access();				
@@ -230,18 +230,18 @@ var jlms = {
 					beforeSend: function (xhr){ 
 						xhr.setRequestHeader('Authorization', jlms.make_base_auth(name, pass)); 
 					},
-					success: function(data) {							
+					success: function(data) {						
 						site = site.replace(/"/g, '\\"');
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
 						
-						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';																		
+						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';
+						alert(access);
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
 						jlms.synchConfig();					
 					},		
 			        error: function( jqXHR, textStatus, errorThrown){						
-						//alert(textStatus);
-						//alert(errorThrown);
+						alert(textStatus);						
 			        }
 			    });			
 			}		
