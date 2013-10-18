@@ -114,7 +114,6 @@ var jlms = {
 		return jlms.dir;
 	},	
 	onFileSystemSuccess: function(fileSystem) {		
-		alert("onFileSystemSuccess: ");
 		jlms.fileSystem = fileSystem;			
 		jlms.onReady();
 	},	
@@ -240,7 +239,9 @@ var jlms = {
 						
 						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';						
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
+						alert("writed");
 						jlms.synchConfig();					
+						alert("synched");
 					},		
 			        error: function( jqXHR, textStatus, errorThrown){						
 						alert(textStatus+' '+errorThrown);
@@ -253,7 +254,7 @@ var jlms = {
 		var curi = access.site+jlms.consts.PATH_ACCESS+jlms.consts.FILE_NAME_CONFIG;			
 		
 		jlms.counter = 0;
-		jlms.onDownloadSuccess = function(fileEntry) {		
+		jlms.onDownloadSuccess = function(fileEntry) {
 			alert("download complete1: " + fileEntry.fullPath);			
 		
 			fileEntry.file( jlms.gotFile, jlms.fail);				
