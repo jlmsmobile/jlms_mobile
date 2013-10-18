@@ -39,7 +39,11 @@
       <preference name="InAppBrowserStorageEnabled" value="true" />
       <preference name="disallowOverscroll" value="true" />
     -->
-
+	
+	<feature name="debug-server" required="true">
+		<param name="domain" value="http://debug.build.phonegap.com"/>
+		<param name="key" value="123412342345872834289346296347895723849572384758"/>
+	</feature>
     <feature name="App">
       <param name="android-package" value="org.apache.cordova.App"/>
     </feature>
