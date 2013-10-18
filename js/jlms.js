@@ -195,7 +195,8 @@ var jlms = {
 		var hash = btoa(tok);
 		return "Basic " + hash;
 	},
-	login: function( site, name, pass) {	
+	login: function( site, name, pass) {			
+			alert('login');
 			if( site === undefined ) 
 			{				
 				var access = jlms.access();				
@@ -216,9 +217,7 @@ var jlms = {
 					success: function(data) {												
 						$.mobile.changePage( "dashboard.html" );
 					},		
-			        error: function( jqXHR, textStatus, errorThrown){							
-						alert(errorThrown);
-						alert(textStatus);
+			        error: function( jqXHR, textStatus, errorThrown){						
 						$.mobile.changePage( "login-first.html" );						
 			        }
 			    });						
