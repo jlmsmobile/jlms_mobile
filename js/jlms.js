@@ -259,6 +259,7 @@ var jlms = {
 			
 			if( config !== false ) 
 			{			
+				alert("config !== false");			
 				$(config.options).each( function( i, el ) { 											
 					var img = el.img;									
 					
