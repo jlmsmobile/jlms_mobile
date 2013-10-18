@@ -231,6 +231,7 @@ var jlms = {
 						xhr.setRequestHeader('Authorization', jlms.make_base_auth(name, pass)); 
 					},
 					success: function(data) {						
+						alert('success');
 						site = site.replace(/"/g, '\\"');
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
