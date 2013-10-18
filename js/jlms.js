@@ -185,8 +185,7 @@ var jlms = {
 		return data;
 	},
 	writeToFile: function( fileName, text ) {		
-		jlms.fileSystem.root.getFile( fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail );				
-		alert(jlms.fileEntry);
+		jlms.fileSystem.root.getFile( fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail );						
 		jlms.fileEntry.writeText = text;			
 		alert("2");
 		jlms.fileEntry.createWriter(jlms.gotFileWriter, jlms.fail);
@@ -342,9 +341,9 @@ var jlms = {
 				err = 'ABORT_ERR';
 			break;		
 			default: 
-				//alert(error.code+'  '+error.target);
+				alert(error.code+'  '+error.target);
 		}	
-		//alert(err+'  '+error.target);	
+		alert(err+'  '+error.target);	
 	}
 };
 
