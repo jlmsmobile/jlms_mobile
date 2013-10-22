@@ -3,7 +3,7 @@ var jlms = {
 	fileSystem: null,
 	consts: {
 		AUTH_PAGE: 'index.php?option=com_jlms_mobile&task=checkaccess', //empty json file		
-		PATH_ACCESS: '/config/',
+		PATH_ACCESS: 'config/',
         FILE_NAME_USERSETUP: 'usersetup.json',
 		FILE_NAME_CONFIG: 'mconfig.json',		
 		FILE_NAME_ACCESS: 'access.json',
