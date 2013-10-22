@@ -130,6 +130,7 @@ var jlms = {
 
 		reader.onloadend = function(evt) {
 			jlms.file.text = evt.target.result;
+			alert('text'+jlms.file.text);		
 		};		
 		reader.readAsText(jlms.file);
 	},
