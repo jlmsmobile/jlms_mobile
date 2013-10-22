@@ -86,7 +86,7 @@ var jlms = {
 	},	
 	downloadFile: function(sourceUri, destDir) {			
 		jlms.uri = sourceUri;	
-						
+					
 		if( jlms.fileSystem !== null ) 
 		{					
 			if( destDir !== undefined ) 
@@ -103,7 +103,7 @@ var jlms = {
 				{			
 					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);
 					var ft = new FileTransfer();
-					alert(jlms.uri);
+					
 					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);						
 				}				
 			}	
@@ -236,7 +236,7 @@ var jlms = {
 						site = site.replace(/"/g, '\\"');
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
-						
+						alert(site);
 						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';						
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
 						jlms.synchConfig();
