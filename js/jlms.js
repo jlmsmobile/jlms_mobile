@@ -133,8 +133,8 @@ var jlms = {
 			jlms.fileText = evt.target.result;
 			alert('text'+jlms.fileText);		
 		};		
-		alert('text'+jlms.fileText);
 		reader.readAsText(jlms.file);
+		alert('text'+jlms.fileText);
 	},
 	onDirectoryGetSuccess: function( dataDir ) {
 		jlms.dir = dataDir;		
