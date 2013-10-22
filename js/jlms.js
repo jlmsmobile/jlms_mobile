@@ -170,11 +170,11 @@ var jlms = {
 		return "Basic " + hash;
 	},
 	login: function( site, name, pass) {			
-			
+			alert(site);
 			if( site === undefined ) 
 			{				
 				var access = jlms.access();				
-				alert(access);
+				
 				if( access === false || access === undefined ) 
 				{
 					$.mobile.changePage( "login-first.html" );
@@ -209,7 +209,8 @@ var jlms = {
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
 						
-						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';						
+						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';	
+						alert(2);						
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
 						jlms.synchConfig();
 					},		
