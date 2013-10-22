@@ -37,7 +37,7 @@ var jlms = {
 	jsonEntry: function( fileName ) 
 	{
 		jlms.file = false;
-		jlms.fileSystem.root.getFile( fileName, {create: false, exclusive: true}, jlms.onFileGetSuccess, jlms.failFile);	
+		jlms.fileSystem.root.getFile( fileName, {create: false, exclusive: true}, jlms.onFileGetSuccess, jlms.failFile);
 		
 		if( jlms.file === false ) 
 		{
@@ -65,8 +65,6 @@ var jlms = {
 		{				
 			jlms.instances = {'access': jlms.jsonEntry( jlms.consts.FILE_NAME_ACCESS ) };							
 		}
-		
-		alert(jlms.instances['access']);
 		
 		return jlms.instances['access'];
 	},
@@ -122,7 +120,7 @@ var jlms = {
 	onFileGetSuccess: function(fileEntry) {		
 		jlms.fileEntry = fileEntry;		
 		//jlms.fileEntry.remove();
-		fileEntry.file( jlms.gotFile, jlms.failFile);
+		jlms.fileEntry.file( jlms.gotFile, jlms.failFile);
 	},	
 	gotFile: function(file)	{				
 		jlms.file = file;				
