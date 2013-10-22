@@ -18,8 +18,9 @@
  under the License.
 -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
-        id        = "io.cordova.helloCordova"
-        version   = "2.9.0">
+		xmlns:gap = "http://phonegap.com/ns/1.0"
+        id        = "io.cordova.jlmasmobile"
+        version   = "1.0.0">
     <name>JLMS Mobile Client</name>
 
     <description>        
@@ -33,8 +34,15 @@
 
     <!-- <content src="http://mysite.com/myapp.html" /> for external pages -->
     <content src="index.html" />
-
-    <preference name="loglevel" value="DEBUG" />
+	
+	<preference name="phonegap-version" value="2.9.0" /> <!-- all: current version of PhoneGap -->
+    <preference name="orientation" value="default" /> <!-- all: default means both landscape and portrait are enabled -->
+    <preference name="target-device" value="universal" /> <!-- all: possible values handset, tablet, or universal -->
+    <preference name="fullscreen" value="true" /> 
+    <preference name="android-minSdkVersion" value="7" /> <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
+    <preference name="android-installLocation" value="auto" />	
+	
+	<!--<preference name="InAppBrowserStorageEnabled" value="true" />-->
     <!--
       <preference name="splashscreen" value="resourceName" />
       <preference name="backgroundColor" value="0xFFF" />
@@ -43,10 +51,7 @@
       <preference name="disallowOverscroll" value="true" />
     -->
 	
-	<feature name="debug-server" required="true">
-		<param name="domain" value="http://debug.build.phonegap.com"/>
-		<param name="key" value="123412342345872834289346296347895723849572384758"/>
-	</feature>
+	<!--
     <feature name="App">
       <param name="android-package" value="org.apache.cordova.App"/>
     </feature>
@@ -104,7 +109,5 @@
     <feature name="InAppBrowser">
       <param name="android-package" value="org.apache.cordova.InAppBrowser"/>
     </feature>
-    <!-- Deprecated plugins element. Remove in 3.0 -->
-    <plugins>
-    </plugins>
+	-->
 </widget>
