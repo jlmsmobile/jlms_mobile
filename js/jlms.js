@@ -342,7 +342,8 @@ var jlms = {
 			break;		
 			default: 
 				alert(error.code+'  '+error.target);
-		}	
+		}
+		alert(evt.target.error.code);
 		alert(error.code+'  '+error.target);
 		var err = new Error();		
 		alert(err.stack);
