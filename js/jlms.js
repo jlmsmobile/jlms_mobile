@@ -102,7 +102,8 @@ var jlms = {
 				if( fileName.length > 1 ) 
 				{			
 					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail);
-					var ft = new FileTransfer();											
+					var ft = new FileTransfer();	
+					alert(jlms.file.fullPath);
 					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.fail);						
 				}				
 			}	
