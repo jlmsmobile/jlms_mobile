@@ -150,7 +150,7 @@ var jlms = {
 		fileEntry.file( jlms.gotFile, jlms.fail);		
 	},
     onDeviceReady: function() {   				
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 20, jlms.onFileSystemSuccess, jlms.fail);		
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*20, jlms.onFileSystemSuccess, jlms.fail);		
     },
 	getData: function() {			
 		var setup = jlms.setup();			
@@ -282,7 +282,7 @@ var jlms = {
 		jlms.counter++;
 		jlms.downloadFile( curi );		
 	},
-	fail: function(error, caller) {
+	fail: function(error) {
 		var err = '';
 		
 		switch(error.code) 
@@ -340,7 +340,7 @@ var jlms = {
 				alert(error.code+'  '+error.target);
 		}
 		
-		alert(caller+': '+err);
+		alert(err);
 		var err = new Error();		
 		alert(err.stack);
 	}
