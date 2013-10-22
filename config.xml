@@ -28,10 +28,13 @@
     <author href="http://joomlalms.com" email="smco3000@yahoo.com">
         BelItSoft
     </author>
+	
+	<access origin="*"/>
 
-    <access origin="*"/>	
-    
+    <!-- <content src="http://mysite.com/myapp.html" /> for external pages -->
     <content src="index.html" />
+
+    <preference name="loglevel" value="DEBUG" />
     <!--
       <preference name="splashscreen" value="resourceName" />
       <preference name="backgroundColor" value="0xFFF" />

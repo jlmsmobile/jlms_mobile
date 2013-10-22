@@ -150,7 +150,7 @@ var jlms = {
 		fileEntry.file( jlms.gotFile, jlms.fail);		
 	},
     onDeviceReady: function() {   				
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 10, jlms.onFileSystemSuccess, jlms.fail);		
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 3, jlms.onFileSystemSuccess, jlms.fail);		
     },
 	getData: function() {			
 		var setup = jlms.setup();			
