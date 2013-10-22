@@ -34,54 +34,13 @@ var jlms = {
 			return 'http://'+name+':'+pass+'@'+site+link;
 		}		
 	},
-	jsonEntry: function( fileName ) 
-	{
-		jlms.file = false;
-		jlms.fileSystem.root.getFile( fileName, {create: false, exclusive: true}, jlms.onFileGetSuccess, jlms.failFile);
-	
-		if( jlms.file === false ) 
-		{
-				return false;
-		}								
-		
-		jlms.readAsText();			
-		
-		/*
-		if( fileName == lms.consts.FILE_NAME_USERSETUP ) 
-		{
-			alert(jlms.file.text);
-		}
-		*/
-		alert('text2'+jlms.fileText);
-		if( jlms.fileText === undefined  )
-		{
-			return false;
-		}
-		alert(jlms.fileText);	
-		return $.parseJSON(jlms.fileText);			
-	},
 	access: function( update ){						
-		if( jlms.instances === undefined || jlms.instances['access'] === undefined || jlms.instances['access'] === false || update === true  ) 
-		{				
-			jlms.instances = {'access': jlms.jsonEntry( jlms.consts.FILE_NAME_ACCESS ) };							
-		}
-		
 		return jlms.instances['access'];
 	},
 	config: function( update ){
-		if( jlms.instances === undefined || jlms.instances['config'] === undefined || jlms.instances['config'] === false || update === true  ) 
-		{			
-			jlms.instances = {'config': jlms.jsonEntry( jlms.consts.FILE_NAME_CONFIG ) };			
-		}
-		
 		return jlms.instances['config'];
 	},
 	setup: function( update ){		
-		if( jlms.instances === undefined || jlms.instances['setup'] === undefined || jlms.instances['setup'] === false || update === true  ) 
-		{				
-			jlms.instances = {'setup': jlms.jsonEntry( jlms.consts.FILE_NAME_USERSETUP ) };																
-		}
-		
 		return jlms.instances['setup'];
 	},	
 	downloadFile: function(sourceUri, destDir) {			
@@ -118,23 +77,35 @@ var jlms = {
 		jlms.onReady();
 	},	
 	onFileGetSuccess: function(fileEntry) {		
-		jlms.fileEntry = fileEntry;		
-		//jlms.fileEntry.remove();
+		jlms.fileEntry = fileEntry;	
 		fileEntry.file( jlms.gotFile, jlms.failFile);
 	},	
 	gotFile: function(file)	{
-		jlms.file = file;				
+		jlms.file = file;
+
+		switch(jlms.file.name) {
+			case jlms.consts.FILE_NAME_ACCESS:
+				var reader = new FileReader();
+				reader.onloadend = function(evt) {					
+					jlms.instances = {'access': $.parseJSON(evt.target.result)};
+				};		
+				reader.readAsText(file);
+			case jlms.consts.FILE_NAME_CONFIG:
+				var reader = new FileReader();
+				reader.onloadend = function(evt) {					
+					jlms.instances = {'config': $.parseJSON(evt.target.result)};
+				};		
+				reader.readAsText(file);
+			case jlms.consts.FILE_NAME_USERSETUP:
+				var reader = new FileReader();
+				reader.onloadend = function(evt) {					
+					jlms.instances = {'setup': $.parseJSON(evt.target.result)};
+				};		
+				reader.readAsText(file);
+			break;
+		}		
 	},
 	onReady: function() {},
-	readAsText: function() {				
-		var reader = new FileReader();
-
-		reader.onload = function(evt) {
-			jlms.fileText = evt.target.result;
-			alert('text'+jlms.fileText); 		
-		};		
-		reader.readAsText(jlms.file);		
-	},
 	onDirectoryGetSuccess: function( dataDir ) {
 		jlms.dir = dataDir;		
 		if( jlms.uri !== null ) {
