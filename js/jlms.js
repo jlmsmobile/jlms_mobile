@@ -120,9 +120,10 @@ var jlms = {
 	onFileGetSuccess: function(fileEntry) {		
 		jlms.fileEntry = fileEntry;		
 		//jlms.fileEntry.remove();
-		jlms.fileEntry.file( jlms.gotFile, jlms.failFile);
+		fileEntry.file( jlms.gotFile, jlms.failFile);
 	},	
-	gotFile: function(file)	{				
+	gotFile: function(file)	{
+		alert(file);	
 		jlms.file = file;				
 	},
 	onReady: function() {},
