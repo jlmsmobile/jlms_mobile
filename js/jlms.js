@@ -344,7 +344,7 @@ var jlms = {
 				alert(error.code+'  '+error.target);
 		}
 		
-		alert(error.code+'  '+error.target);
+		alert(err);
 		var err = new Error();		
 		alert(err.stack);
 	}
