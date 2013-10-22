@@ -52,12 +52,13 @@ var jlms = {
 			alert(jlms.file.text);
 		}
 		*/
-		if( jlms.file.text === undefined  )
+		alert('text'+jlms.fileText);		
+		if( jlms.fileText === undefined  )
 		{
 			return false;
 		}
-		alert(jlms.file.text);	
-		return $.parseJSON(jlms.file.text);			
+		alert(jlms.fileText);	
+		return $.parseJSON(jlms.fileText);			
 	},
 	access: function( update ){						
 		if( jlms.instances === undefined || jlms.instances['access'] === undefined || jlms.instances['access'] === false || update === true  ) 
@@ -129,8 +130,7 @@ var jlms = {
 		var reader = new FileReader();
 
 		reader.onloadend = function(evt) {
-			jlms.file.text = evt.target.result;
-			alert('text'+jlms.file.text);		
+			jlms.fileText = evt.target.result;
 		};		
 		reader.readAsText(jlms.file);
 	},
