@@ -34,14 +34,26 @@ var jlms = {
 			return 'http://'+name+':'+pass+'@'+site+link;
 		}		
 	},
-	access: function( update ){						
-		return jlms.instances['access'];
+	access: function(){		
+		if( jlms.instances !== undefined && jlms.instances['access'] !== undefined ) {
+			return jlms.instances['access'];
+		} else {
+			return false;
+		}
 	},
-	config: function( update ){
-		return jlms.instances['config'];
+	config: function(){
+		if( jlms.instances !== undefined && jlms.instances['config'] !== undefined ) {
+			return jlms.instances['config'];
+		} else {
+			return false;
+		}
 	},
-	setup: function( update ){		
-		return jlms.instances['setup'];
+	setup: function(){
+		if( jlms.instances !== undefined && jlms.instances['setup'] !== undefined ) {
+			return jlms.instances['setup'];
+		} else {
+			return false;
+		}
 	},	
 	downloadFile: function(sourceUri, destDir) {			
 		jlms.uri = sourceUri;	
@@ -170,7 +182,7 @@ var jlms = {
 		return "Basic " + hash;
 	},
 	login: function( site, name, pass) {			
-			alert(site);
+			
 			if( site === undefined ) 
 			{				
 				var access = jlms.access();				
