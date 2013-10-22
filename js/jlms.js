@@ -102,8 +102,7 @@ var jlms = {
 				if( fileName.length > 1 ) 
 				{			
 					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail);
-					var ft = new FileTransfer();	
-					alert(jlms.file.fullPath);
+					var ft = new FileTransfer();
 					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.fail);						
 				}				
 			}	
@@ -253,7 +252,7 @@ var jlms = {
 		
 		jlms.counter = 0;
 		jlms.onDownloadSuccess = function(fileEntry) {
-			alert("download complete1: " + fileEntry.fullPath);			
+			//alert("download complete1: " + fileEntry.fullPath);			
 		
 			fileEntry.file( jlms.gotFile, jlms.fail);				
 		
@@ -261,7 +260,6 @@ var jlms = {
 			
 			if( config !== false ) 
 			{			
-				alert("config !== false");			
 				$(config.options).each( function( i, el ) { 											
 					var img = el.img;									
 					
