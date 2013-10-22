@@ -131,7 +131,7 @@ var jlms = {
 
 		reader.onload = function(evt) {
 			jlms.fileText = evt.target.result;
-			alert('text'+jlms.fileText);		
+			alert('text'+jlms.fileText); 		
 		};		
 		reader.readAsText(jlms.file);		
 	},
