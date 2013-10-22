@@ -65,7 +65,6 @@ var jlms = {
 				jlms.fileSystem.root.getDirectory( destDir, {create: true}, jlms.onDirectoryGetSuccess, jlms.failFile );				
 				
 				var ft = new FileTransfer();	
-	alert('1'+jlms.file.fullPath);				
 				ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);											
 			} else {				
 				
@@ -75,7 +74,7 @@ var jlms = {
 				{			
 					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);
 					var ft = new FileTransfer();
-					alert(jlms.file.fullPath);
+					alert(jlms.uri);
 					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);						
 				}				
 			}	
