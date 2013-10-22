@@ -57,7 +57,7 @@ var jlms = {
 	},	
 	downloadFile: function(sourceUri, destDir) {			
 		jlms.uri = sourceUri;	
-					
+		alert(sourceUri)		
 		if( jlms.fileSystem !== null ) 
 		{					
 			if( destDir !== undefined ) 
@@ -94,7 +94,7 @@ var jlms = {
 	},	
 	gotFile: function(file)	{
 		jlms.file = file;
-
+		alert(jlms.file.name);						
 		switch(jlms.file.name) {
 			case jlms.consts.FILE_NAME_ACCESS:
 				var reader = new FileReader();
@@ -102,18 +102,23 @@ var jlms = {
 					jlms.instances = {'access': $.parseJSON(evt.target.result)};
 				};		
 				reader.readAsText(file);
+				alert('accessfilegot');
+			break;
 			case jlms.consts.FILE_NAME_CONFIG:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'config': $.parseJSON(evt.target.result)};
 				};		
 				reader.readAsText(file);
+				alert('configfilegot');
+			break;
 			case jlms.consts.FILE_NAME_USERSETUP:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'setup': $.parseJSON(evt.target.result)};
 				};		
 				reader.readAsText(file);
+				alert('setupfilegot');
 			break;
 		}		
 	},
@@ -185,10 +190,7 @@ var jlms = {
 			
 			if( site === undefined ) 
 			{		
-					alert(123);
-				var access = jlms.access();		
-
-				alert(access);
+				var access = jlms.access();	
 				
 				if( access === false || access === undefined ) 
 				{
@@ -225,7 +227,7 @@ var jlms = {
 						pass = pass.replace(/"/g, '\\"');
 						
 						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';	
-						alert(2);						
+						
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
 						jlms.synchConfig();
 					},		
