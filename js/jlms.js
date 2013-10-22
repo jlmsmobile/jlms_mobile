@@ -64,7 +64,9 @@ var jlms = {
 		if( jlms.instances === undefined || jlms.instances['access'] === undefined || jlms.instances['access'] === false || update === true  ) 
 		{				
 			jlms.instances = {'access': jlms.jsonEntry( jlms.consts.FILE_NAME_ACCESS ) };							
-		}		
+		}
+		
+		alert(jlms.instances['access']);
 		
 		return jlms.instances['access'];
 	},
@@ -236,7 +238,7 @@ var jlms = {
 						site = site.replace(/"/g, '\\"');
 						name = name.replace(/"/g, '\\"');
 						pass = pass.replace(/"/g, '\\"');
-						alert(site);
+						
 						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';						
 						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
 						jlms.synchConfig();
