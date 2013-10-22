@@ -52,7 +52,7 @@ var jlms = {
 			alert(jlms.file.text);
 		}
 		*/
-		alert(jlms.file.text);	
+		alert(jlms.file);	
 		if( jlms.file.text === undefined  )
 		{
 			return false;
