@@ -52,7 +52,6 @@ var jlms = {
 			alert(jlms.file.text);
 		}
 		*/
-		alert(jlms.file);	
 		if( jlms.file.text === undefined  )
 		{
 			return false;
@@ -129,8 +128,9 @@ var jlms = {
 	readAsText: function() {				
 		var reader = new FileReader();
 
-		reader.onload = function(evt) {				
-			jlms.file.text = evt.target.result;												
+		reader.onload = function(evt) {
+			jlms.file.text = evt.target.result;		
+			alert('text'+jlms.file.text);		
 		};		
 		reader.readAsText(jlms.file);
 	},
