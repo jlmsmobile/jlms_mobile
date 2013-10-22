@@ -329,8 +329,7 @@ var jlms = {
 		alert(err);
 		var err = new Error();		
 		alert(err.stack);
-	}
-	
+	},	
 	failFileTransfer: function(error) {
 		var err = '';
 		
