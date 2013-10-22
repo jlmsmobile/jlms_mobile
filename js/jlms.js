@@ -73,7 +73,8 @@ var jlms = {
 		return jlms.dir;
 	},	
 	onFileSystemSuccess: function(fileSystem) {		
-		jlms.fileSystem = fileSystem;			
+		jlms.fileSystem = fileSystem;	
+	alert(2);		
 		jlms.onReady();
 	},	
 	onFileGetSuccess: function(fileEntry) {		
@@ -335,7 +336,7 @@ $(document).ready( function() {
 	console.log('document ready');
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;												
-	
+	alert(1);
 	$( document ).delegate("#dashboardPage", "pageinit", function() {					
 		var data = jlms.getData();							
 		var dir = jlms.getDir(jlms.consts.DIR_IMAGES);		
