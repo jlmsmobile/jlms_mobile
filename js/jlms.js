@@ -57,14 +57,15 @@ var jlms = {
 	},	
 	downloadFile: function(sourceUri, destDir) {			
 		jlms.uri = sourceUri;	
-		alert(sourceUri)		
+		
 		if( jlms.fileSystem !== null ) 
 		{					
 			if( destDir !== undefined ) 
 			{
 				jlms.fileSystem.root.getDirectory( destDir, {create: true}, jlms.onDirectoryGetSuccess, jlms.failFile );				
 				
-				var ft = new FileTransfer();																
+				var ft = new FileTransfer();	
+	alert('1'+jlms.file.fullPath);				
 				ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);											
 			} else {				
 				
@@ -74,7 +75,7 @@ var jlms = {
 				{			
 					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);
 					var ft = new FileTransfer();
-					
+					alert(jlms.file.fullPath);
 					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);						
 				}				
 			}	
@@ -94,7 +95,7 @@ var jlms = {
 	},	
 	gotFile: function(file)	{
 		jlms.file = file;
-		alert(jlms.file.name);						
+		
 		switch(jlms.file.name) {
 			case jlms.consts.FILE_NAME_ACCESS:
 				var reader = new FileReader();
@@ -102,7 +103,6 @@ var jlms = {
 					jlms.instances = {'access': $.parseJSON(evt.target.result)};
 				};		
 				reader.readAsText(file);
-				alert('accessfilegot');
 			break;
 			case jlms.consts.FILE_NAME_CONFIG:
 				var reader = new FileReader();
@@ -110,7 +110,6 @@ var jlms = {
 					jlms.instances = {'config': $.parseJSON(evt.target.result)};
 				};		
 				reader.readAsText(file);
-				alert('configfilegot');
 			break;
 			case jlms.consts.FILE_NAME_USERSETUP:
 				var reader = new FileReader();
@@ -118,7 +117,6 @@ var jlms = {
 					jlms.instances = {'setup': $.parseJSON(evt.target.result)};
 				};		
 				reader.readAsText(file);
-				alert('setupfilegot');
 			break;
 		}		
 	},
