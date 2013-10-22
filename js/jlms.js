@@ -343,7 +343,8 @@ var jlms = {
 			default: 
 				alert(error.code+'  '+error.target);
 		}	
-		alert(err+'  '+error.target);	
+		var err = new Error();		
+		alert(err.stack);
 	}
 };
 
