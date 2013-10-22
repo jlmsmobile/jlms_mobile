@@ -86,10 +86,9 @@ var jlms = {
 	},	
 	downloadFile: function(sourceUri, destDir) {			
 		jlms.uri = sourceUri;	
-		alert("filesystem: " + jlms.fileSystem);					
+						
 		if( jlms.fileSystem !== null ) 
-		{			
-			alert("destdir: " + destDir);					
+		{					
 			if( destDir !== undefined ) 
 			{
 				jlms.fileSystem.root.getDirectory( destDir, {create: true}, jlms.onDirectoryGetSuccess, jlms.fail );				
@@ -150,7 +149,7 @@ var jlms = {
 		fileEntry.file( jlms.gotFile, jlms.fail);		
 	},
     onDeviceReady: function() {   				
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 3, jlms.onFileSystemSuccess, jlms.fail);		
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 20, jlms.onFileSystemSuccess, jlms.fail);		
     },
 	getData: function() {			
 		var setup = jlms.setup();			
