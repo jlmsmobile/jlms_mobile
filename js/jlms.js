@@ -282,7 +282,7 @@ var jlms = {
 		jlms.counter++;
 		jlms.downloadFile( curi );		
 	},
-	fail: function(error) {
+	fail: function(error, caller) {
 		var err = '';
 		
 		switch(error.code) 
@@ -340,7 +340,7 @@ var jlms = {
 				alert(error.code+'  '+error.target);
 		}
 		
-		alert(err);
+		alert(caller+': '+err);
 		var err = new Error();		
 		alert(err.stack);
 	}
