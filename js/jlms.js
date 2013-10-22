@@ -74,7 +74,6 @@ var jlms = {
 	},	
 	onFileSystemSuccess: function(fileSystem) {		
 		jlms.fileSystem = fileSystem;	
-	alert(2);		
 		jlms.onReady();
 	},	
 	onFileGetSuccess: function(fileEntry) {		
@@ -130,7 +129,7 @@ var jlms = {
 		var config = jlms.config();				
 		var data = [];
 		
-		if( config === false || config.options == undefined ) 
+		if( config === false || config.options === undefined ) 
 		{
 			return [];
 		}		
@@ -176,7 +175,7 @@ var jlms = {
 			{				
 				var access = jlms.access();				
 				
-				if( access === false ) 
+				if( access === false || access === undefined ) 
 				{
 					$.mobile.changePage( "login-first.html" );
 				}
@@ -232,7 +231,7 @@ var jlms = {
 		
 			var config = jlms.config();		 				
 			
-			if( config !== false ) 
+			if( config !== false && config !== undefined ) 
 			{			
 				$(config.options).each( function( i, el ) { 											
 					var img = el.img;									
@@ -336,7 +335,6 @@ $(document).ready( function() {
 	console.log('document ready');
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;												
-	alert(1);
 	$( document ).delegate("#dashboardPage", "pageinit", function() {					
 		var data = jlms.getData();							
 		var dir = jlms.getDir(jlms.consts.DIR_IMAGES);		
