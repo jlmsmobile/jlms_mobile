@@ -184,8 +184,11 @@ var jlms = {
 	login: function( site, name, pass) {			
 			
 			if( site === undefined ) 
-			{				
-				var access = jlms.access();				
+			{		
+					alert(123);
+				var access = jlms.access();		
+
+				alert(access);
 				
 				if( access === false || access === undefined ) 
 				{
