@@ -284,7 +284,8 @@ var jlms = {
 		var err = '';
 		
 		switch(error.code) 
-		{		
+		{	
+/*		
 			case FileError.NOT_FOUND_ERR:
 					err = 'NOT_FOUND_ERR';
 			break;
@@ -320,7 +321,7 @@ var jlms = {
 			break;
 			case FileError.PATH_EXISTS_ERR:
 				err = 'PATH_EXISTS_ERR';
-			break;
+			break;*/
 			//fileTransfer
 			case FileTransferError.FILE_NOT_FOUND_ERR:
 				err = 'FILE_NOT_FOUND_ERR';
