@@ -174,7 +174,7 @@ var jlms = {
 			if( site === undefined ) 
 			{				
 				var access = jlms.access();				
-				
+				alert(access);
 				if( access === false || access === undefined ) 
 				{
 					$.mobile.changePage( "login-first.html" );
