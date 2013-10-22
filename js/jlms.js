@@ -37,7 +37,7 @@ var jlms = {
 	jsonEntry: function( fileName ) 
 	{
 		jlms.file = false;
-		jlms.fileSystem.root.getFile( fileName, {create: false, exclusive: true}, jlms.onFileGetSuccess, jlms.fail);	
+		jlms.fileSystem.root.getFile( fileName, {create: false, exclusive: true}, jlms.onFileGetSuccess, jlms.failFile);	
 		
 		if( jlms.file === false ) 
 		{
@@ -91,25 +91,26 @@ var jlms = {
 		{					
 			if( destDir !== undefined ) 
 			{
-				jlms.fileSystem.root.getDirectory( destDir, {create: true}, jlms.onDirectoryGetSuccess, jlms.fail );				
+				jlms.fileSystem.root.getDirectory( destDir, {create: true}, jlms.onDirectoryGetSuccess, jlms.failFile );				
 				
 				var ft = new FileTransfer();																
-				ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.fail);											
+				ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);											
 			} else {				
 				
 				var fileName	= jlms.uri.substr(jlms.uri.lastIndexOf('/')+1);				
 				
 				if( fileName.length > 1 ) 
 				{			
-					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail);
+					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);
 					var ft = new FileTransfer();
-					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.fail);						
+					alert(jlms.uri);
+					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);						
 				}				
 			}	
 		}		
 	},
 	getDir: function( dirName ) {		
-		jlms.fileSystem.root.getDirectory( dirName, {create: false}, jlms.onDirectoryGetSuccess, jlms.fail );
+		jlms.fileSystem.root.getDirectory( dirName, {create: false}, jlms.onDirectoryGetSuccess, jlms.failFile );
 		return jlms.dir;
 	},	
 	onFileSystemSuccess: function(fileSystem) {		
@@ -119,7 +120,7 @@ var jlms = {
 	onFileGetSuccess: function(fileEntry) {		
 		jlms.fileEntry = fileEntry;		
 		//jlms.fileEntry.remove();
-		fileEntry.file( jlms.gotFile, jlms.fail);
+		fileEntry.file( jlms.gotFile, jlms.failFile);
 	},	
 	gotFile: function(file)	{				
 		jlms.file = file;				
@@ -140,16 +141,16 @@ var jlms = {
 			
 			if( fileName.length > 1 ) 
 			{		
-				dataDir.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail);										
+				dataDir.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);										
 			}
 		}
 	},
 	onDownloadSuccess: function(fileEntry) {	
 		//alert("download complete2: " + fileEntry.fullPath);			
-		fileEntry.file( jlms.gotFile, jlms.fail);		
+		fileEntry.file( jlms.gotFile, jlms.failFile);		
 	},
     onDeviceReady: function() {   				
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*20, jlms.onFileSystemSuccess, jlms.fail);		
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*20, jlms.onFileSystemSuccess, jlms.failFile);		
     },
 	getData: function() {			
 		var setup = jlms.setup();			
@@ -184,9 +185,9 @@ var jlms = {
 		return data;
 	},
 	writeToFile: function( fileName, text ) {		
-		jlms.fileSystem.root.getFile( fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.fail );						
+		jlms.fileSystem.root.getFile( fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile );						
 		jlms.fileEntry.writeText = text;			
-		jlms.fileEntry.createWriter(jlms.gotFileWriter, jlms.fail);
+		jlms.fileEntry.createWriter(jlms.gotFileWriter, jlms.failFile);
 	},
 	gotFileWriter: function( writer ) {       			
         writer.write( jlms.fileEntry.writeText );
@@ -254,7 +255,7 @@ var jlms = {
 		jlms.onDownloadSuccess = function(fileEntry) {
 			//alert("download complete1: " + fileEntry.fullPath);			
 		
-			fileEntry.file( jlms.gotFile, jlms.fail);				
+			fileEntry.file( jlms.gotFile, jlms.failFile);				
 		
 			var config = jlms.config();		 				
 			
@@ -280,12 +281,11 @@ var jlms = {
 		jlms.counter++;
 		jlms.downloadFile( curi );		
 	},
-	fail: function(error) {
+	failFile: function(error) {
 		var err = '';
 		
 		switch(error.code) 
-		{	
-/*		
+		{		
 			case FileError.NOT_FOUND_ERR:
 					err = 'NOT_FOUND_ERR';
 			break;
@@ -321,8 +321,21 @@ var jlms = {
 			break;
 			case FileError.PATH_EXISTS_ERR:
 				err = 'PATH_EXISTS_ERR';
-			break;*/
-			//fileTransfer
+			break;
+			default: 
+				alert(error.code+'  '+error.target);
+		}
+		
+		alert(err);
+		var err = new Error();		
+		alert(err.stack);
+	}
+	
+	failFileTransfer: function(error) {
+		var err = '';
+		
+		switch(error.code) 
+		{			
 			case FileTransferError.FILE_NOT_FOUND_ERR:
 				err = 'FILE_NOT_FOUND_ERR';
 			break;
