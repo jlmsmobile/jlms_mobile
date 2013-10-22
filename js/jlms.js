@@ -128,9 +128,8 @@ var jlms = {
 	readAsText: function() {				
 		var reader = new FileReader();
 
-		reader.onload = function(evt) {
-			jlms.file.text = evt.target.result;		
-			alert('text'+jlms.file.text);		
+		reader.onloadend = function(evt) {
+			jlms.file.text = evt.target.result;
 		};		
 		reader.readAsText(jlms.file);
 	},
