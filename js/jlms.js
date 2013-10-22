@@ -52,7 +52,7 @@ var jlms = {
 			alert(jlms.file.text);
 		}
 		*/
-		
+		alert('text2'+jlms.fileText);
 		if( jlms.fileText === undefined  )
 		{
 			return false;
@@ -133,8 +133,7 @@ var jlms = {
 			jlms.fileText = evt.target.result;
 			alert('text'+jlms.fileText);		
 		};		
-		reader.readAsText(jlms.file);
-		alert('text'+jlms.fileText);
+		reader.readAsText(jlms.file);		
 	},
 	onDirectoryGetSuccess: function( dataDir ) {
 		jlms.dir = dataDir;		
