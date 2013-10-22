@@ -38,7 +38,7 @@ var jlms = {
 	{
 		jlms.file = false;
 		jlms.fileSystem.root.getFile( fileName, {create: false, exclusive: true}, jlms.onFileGetSuccess, jlms.failFile);
-		
+	
 		if( jlms.file === false ) 
 		{
 				return false;
@@ -52,12 +52,12 @@ var jlms = {
 			alert(jlms.file.text);
 		}
 		*/
-		
+		alert(jlms.file.text);	
 		if( jlms.file.text === undefined  )
 		{
 			return false;
 		}
-	
+		alert(jlms.file.text);	
 		return $.parseJSON(jlms.file.text);			
 	},
 	access: function( update ){						
@@ -123,7 +123,6 @@ var jlms = {
 		fileEntry.file( jlms.gotFile, jlms.failFile);
 	},	
 	gotFile: function(file)	{
-		alert(file);	
 		jlms.file = file;				
 	},
 	onReady: function() {},
