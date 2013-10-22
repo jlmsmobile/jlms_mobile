@@ -42,7 +42,7 @@
     <preference name="android-minSdkVersion" value="7" /> <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
     <preference name="android-installLocation" value="auto" />	
 	
-	<!--<preference name="InAppBrowserStorageEnabled" value="true" />-->
+	<preference name="InAppBrowserStorageEnabled" value="true" />
     <!--
       <preference name="splashscreen" value="resourceName" />
       <preference name="backgroundColor" value="0xFFF" />
