@@ -51,7 +51,7 @@
       <preference name="disallowOverscroll" value="true" />
     -->
 	
-	<!--
+	
     <feature name="App">
       <param name="android-package" value="org.apache.cordova.App"/>
     </feature>
@@ -109,5 +109,5 @@
     <feature name="InAppBrowser">
       <param name="android-package" value="org.apache.cordova.InAppBrowser"/>
     </feature>
-	-->
+	
 </widget>
