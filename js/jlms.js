@@ -84,11 +84,11 @@ var jlms = {
 		jlms.fileSystem.root.getDirectory( dirName, {create: false}, jlms.onDirectoryGetSuccess, jlms.failFile );
 		return jlms.dir;
 	},	
-	onFileSystemSuccess: function(fileSystem) {		
-		jlms.fileSystem = fileSystem;
+	onFileSystemSuccess: function(fileSystem) {
+		jlms.fileSystem = fileSystem;		
 		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_USERSETUP, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
 		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_CONFIG, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
-		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
+		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);	
 		jlms.onReady();		
 	},	
 	onFileGetSuccess: function(fileEntry) {		
@@ -103,22 +103,25 @@ var jlms = {
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'access': $.parseJSON(evt.target.result)};
+					alert(jlms.file.name);
 				};		
-				reader.readAsText(file);
+				reader.readAsText(file);				
 			break;
 			case jlms.consts.FILE_NAME_CONFIG:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'config': $.parseJSON(evt.target.result)};
+					alert(jlms.file.name);
 				};		
-				reader.readAsText(file);
+				reader.readAsText(file);				
 			break;
 			case jlms.consts.FILE_NAME_USERSETUP:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'setup': $.parseJSON(evt.target.result)};
+					alert(jlms.file.name);
 				};		
-				reader.readAsText(file);
+				reader.readAsText(file);				
 			break;
 		}		
 	},
