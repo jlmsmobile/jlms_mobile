@@ -93,10 +93,11 @@ var jlms = {
 	},	
 	onFileGetSuccess: function(fileEntry) {		
 		jlms.fileEntry = fileEntry;	
+		alert(onFileGetSuccess);
 		fileEntry.file( jlms.gotFile, jlms.failFile);
 	},	
 	gotFile: function(file)	{
-		jlms.file = file;
+		jlms.file = file;		
 		alert(jlms.file.name);
 		switch(jlms.file.name) {
 			case jlms.consts.FILE_NAME_ACCESS:
