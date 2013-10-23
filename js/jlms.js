@@ -97,13 +97,13 @@ var jlms = {
 	},	
 	gotFile: function(file)	{
 		jlms.file = file;
-		
+		alert(jlms.file.name);
 		switch(jlms.file.name) {
 			case jlms.consts.FILE_NAME_ACCESS:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'access': $.parseJSON(evt.target.result)};
-					alert(jlms.file.name);
+					alert('onloaded'+jlms.file.name);
 				};		
 				reader.readAsText(file);				
 			break;
@@ -111,7 +111,7 @@ var jlms = {
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'config': $.parseJSON(evt.target.result)};
-					alert(jlms.file.name);
+					alert('onloaded'+jlms.file.name);
 				};		
 				reader.readAsText(file);				
 			break;
@@ -119,7 +119,7 @@ var jlms = {
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
 					jlms.instances = {'setup': $.parseJSON(evt.target.result)};
-					alert(jlms.file.name);
+					alert('onloaded'+jlms.file.name);
 				};		
 				reader.readAsText(file);				
 			break;
