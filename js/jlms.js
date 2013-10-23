@@ -93,7 +93,7 @@ var jlms = {
 	},	
 	onFileGetSuccess: function(fileEntry) {		
 		jlms.fileEntry = fileEntry;	
-		alert(onFileGetSuccess);
+		alert('onFileGetSuccess');
 		fileEntry.file( jlms.gotFile, jlms.failFile);
 	},	
 	gotFile: function(file)	{
