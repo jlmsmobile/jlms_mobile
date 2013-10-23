@@ -86,9 +86,9 @@ var jlms = {
 	},	
 	onFileSystemSuccess: function(fileSystem) {		
 		jlms.fileSystem = fileSystem;
-		jlms.fileSystem.root.getFile(FILE_NAME_USERSETUP, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
-		jlms.fileSystem.root.getFile(FILE_NAME_CONFIG, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
-		jlms.fileSystem.root.getFile(FILE_NAME_ACCESS, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
+		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_USERSETUP, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
+		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_CONFIG, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
+		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
 		jlms.onReady();		
 	},	
 	onFileGetSuccess: function(fileEntry) {		
