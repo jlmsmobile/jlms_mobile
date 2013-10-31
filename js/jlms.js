@@ -64,7 +64,7 @@ var jlms = {
 			{
 				jlms.fileSystem.root.getDirectory( destDir, {create: true}, jlms.onDirectoryGetSuccess, jlms.failFile );				
 				
-				var ft = new FileTransfer();	
+				var ft = new FileTransfer();					
 				ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);											
 			} else {				
 				
@@ -73,8 +73,7 @@ var jlms = {
 				if( fileName.length > 1 ) 
 				{			
 					jlms.fileSystem.root.getFile(fileName, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);
-					var ft = new FileTransfer();
-					alert(jlms.uri);
+					var ft = new FileTransfer();					
 					ft.download(encodeURI(jlms.uri), jlms.file.fullPath, jlms.onDownloadSuccess, jlms.failFileTransfer);						
 				}				
 			}	
@@ -84,49 +83,44 @@ var jlms = {
 		jlms.fileSystem.root.getDirectory( dirName, {create: false}, jlms.onDirectoryGetSuccess, jlms.failFile );
 		return jlms.dir;
 	},	
-	onFileSystemSuccess: function(fileSystem) {
-		jlms.fileSystem = fileSystem;
-		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);	
-		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_USERSETUP, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);		
-		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_CONFIG, {create: true, exclusive: false}, jlms.onFileGetSuccess, jlms.failFile);						
-		jlms.onReady();		
+	onFileSystemSuccess: function(fileSystem) {				
+		jlms.fileSystem = fileSystem;		
+		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: false}, null, 
+			function() { 
+				$.mobile.changePage( "login-first.html" );
+			} 
+		);		
 	},	
 	onFileGetSuccess: function(fileEntry) {		
 		jlms.fileEntry = fileEntry;	
-		alert('onFileGetSuccess');
 		fileEntry.file( jlms.gotFile, jlms.failFile);
-	},	
+	},		
 	gotFile: function(file)	{
-		jlms.file = file;		
-		alert(jlms.file.name);
+		jlms.file = file;				
 		switch(jlms.file.name) {
 			case jlms.consts.FILE_NAME_ACCESS:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
-					jlms.instances = {'access': $.parseJSON(evt.target.result)};
-					alert('onloaded'+jlms.file.name);
+					jlms.instances = {'access': $.parseJSON(evt.target.result)};					
 				};		
 				reader.readAsText(file);				
 			break;
 			case jlms.consts.FILE_NAME_CONFIG:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
-					jlms.instances = {'config': $.parseJSON(evt.target.result)};
-					alert('onloaded'+jlms.file.name);
+					jlms.instances = {'config': $.parseJSON(evt.target.result)};					
 				};		
 				reader.readAsText(file);				
 			break;
 			case jlms.consts.FILE_NAME_USERSETUP:
 				var reader = new FileReader();
 				reader.onloadend = function(evt) {					
-					jlms.instances = {'setup': $.parseJSON(evt.target.result)};
-					alert('onloaded'+jlms.file.name);
+					jlms.instances = {'setup': $.parseJSON(evt.target.result)};					
 				};		
 				reader.readAsText(file);				
 			break;
 		}		
-	},
-	onReady: function() {},
+	},	
 	onDirectoryGetSuccess: function( dataDir ) {
 		jlms.dir = dataDir;		
 		if( jlms.uri !== null ) {
@@ -142,12 +136,13 @@ var jlms = {
 		//alert("download complete2: " + fileEntry.fullPath);			
 		fileEntry.file( jlms.gotFile, jlms.failFile);		
 	},
-    onDeviceReady: function() {   				
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 1024*20, jlms.onFileSystemSuccess, jlms.failFile);		
+    onDeviceReady: function() {   						
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, jlms.onFileSystemSuccess, jlms.failFile);		
     },
-	getData: function() {			
+	getData: function() {		
 		var setup = jlms.setup();			
-		var config = jlms.config();				
+		var config = jlms.config();
+		
 		var data = [];
 		
 		if( config === false || config.options === undefined ) 
@@ -159,7 +154,8 @@ var jlms = {
 			var img = el.img;
 			var uri = el.uri;
 			var name = el.name;
-			var imgName = img.substr(img.lastIndexOf('/')+1);			
+			var imgName = img.substr(img.lastIndexOf('/')+1);
+			
 			if( setup.options !== undefined ){				
 				var usOpt = setup.options[i];			
 			}			
@@ -184,6 +180,15 @@ var jlms = {
 	},
 	gotFileWriter: function( writer ) {       			
         writer.write( jlms.fileEntry.writeText );
+		jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: true, exclusive: false}, 
+			function() {
+				var reader = new FileReader();
+				reader.onloadend = function(evt) {					
+					jlms.synchConfig();
+				};		
+				reader.readAsText(file);		
+			}, 
+		jlms.failFile);		
     },
 	make_base_auth: function(user, password) {
 		var tok = user + ':' + password;
@@ -191,7 +196,6 @@ var jlms = {
 		return "Basic " + hash;
 	},
 	login: function( site, name, pass) {			
-			
 			if( site === undefined ) 
 			{		
 				var access = jlms.access();	
@@ -232,7 +236,7 @@ var jlms = {
 						
 						var access = '{"site": "'+site+'", "name": "'+name+'", "pass": "'+pass+'" }';	
 						
-						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);												
+						jlms.writeToFile(jlms.consts.FILE_NAME_ACCESS, access);							
 						jlms.synchConfig();
 					},		
 			        error: function( jqXHR, textStatus, errorThrown){						
@@ -241,27 +245,23 @@ var jlms = {
 			    });			
 			}		
 	},	
-	synchConfig: function() {	
-		var access = jlms.access();		 										
+	synchConfig: function() {
+		var access = jlms.access();				
 		var curi = access.site+jlms.consts.PATH_ACCESS+jlms.consts.FILE_NAME_CONFIG;			
 		
 		jlms.counter = 0;
-		jlms.onDownloadSuccess = function(fileEntry) {
-			//alert("download complete1: " + fileEntry.fullPath);			
-		
-			fileEntry.file( jlms.gotFile, jlms.failFile);				
-		
-			var config = jlms.config();		 				
-			
+		jlms.onDownloadSuccess = function(fileEntry) {		
+			fileEntry.file( jlms.gotFile, jlms.failFile);						
+			var config = jlms.config();			
 			if( config !== false && config !== undefined ) 
 			{			
-				$(config.options).each( function( i, el ) { 											
+				$(config.options).each( function( i, el ) {					
 					var img = el.img;									
 					
 					if( img.length > 1 && config.options[i].loaded === undefined ) 
-					{
+					{					
 						config.options[i].loaded = true;
-						jlms.counter++;
+						jlms.counter++;						
 						jlms.downloadFile( access.site+img, jlms.consts.DIR_IMAGES );										
 					}
 				} ); 		
@@ -318,8 +318,7 @@ var jlms = {
 			break;
 			default: 
 				alert(error.code+'  '+error.target);
-		}
-		
+		}		
 		alert(err);
 		var err = new Error();		
 		alert(err.stack);
@@ -375,8 +374,8 @@ $(document).ready( function() {
 					var	src = dir.fullPath+'/'+el.img;								
 				} else {
 					var	src = '';								
-				}
-								
+				}	
+				
 				html += '<li><a class="external-links" href="iframe.html" data-href="'+link+'" ><img src="'+src+'" class="ui-li-thumb">'+el.name+'</a></li>';															
 			}
 		});		
@@ -412,7 +411,7 @@ $(document).ready( function() {
 		var data = jlms.getData();
 		var dir = jlms.getDir(jlms.consts.DIR_IMAGES);				
 		var html = '<form><div class="ui-grid-d">';	
-		$(data).each( function(i, el) {								
+		$(data).each( function(i, el) {				
 			html += '<div class="ui-block-a"><img style="max-height: 40px;" src="'+dir.fullPath+'/'+el.img+'"/></div>';
 			html += '<div class="ui-block-b">'+el.name+'</div>';								
 			html += '<div class="ui-block-d"><select name="flip-'+i+'" id="flip-'+i+'" data-role="slider" data-mini="true"><option '+(el.value =='off'?'selected':'')+' value="off">Off</option><option '+(el.value=='on'?'selected':'')+' value="on">On</option></select></div>';				
@@ -472,7 +471,3 @@ $(document).ready( function() {
 		})		
 	});					
 })		
-
-jlms.onReady = function() {		
-	jlms.login();		
-}	
