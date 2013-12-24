@@ -10,21 +10,25 @@
 	<script type="text/javascript" src="js/jquery.mobile-1.3.2.min.js"></script>		
 	<script type="text/javascript" src="js/cordova.js"></script>	
 	<script type="text/javascript" src="js/jlms.js"></script>		
-	<style type="text/css">
-		#login label{ color: #ffffff;}		
-		.ui-grid-d { margin: 3% 0; }
-		.ui-grid-d .ui-block-a { width: 20%; }
-		.ui-grid-d .ui-block-b { width: 50%; }
-		.ui-grid-d .ui-block-c { width: 30%; }			
+	<style type="text/css">		
+		#logo img {
+			width: 282px;
+			height: 60px;
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			margin: -50px auto auto -141px;
+		}
+	
 	</style>
 </head> 
 <body> 
 <!-- Start of first page -->
 <div data-role="page" id="indexPage">
 <div id="content" data-role="content">
-<p align="center">Welcome</p>	
-<p align="center">JoomlaLMs mobile</p>
-<p align="center">client</p>
+<p align="center" id="logo">
+<img src="images/logo_lms.png" />
+</p>
 </div><!-- /content -->	
 </div><!-- /page --> 
 </html>
