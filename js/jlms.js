@@ -227,7 +227,7 @@ var jlms = {
 	},		
 	failFile: function(error) {
 		var err = '';
-		
+		/*
 		switch(error.code) 
 		{		
 			case FileError.NOT_FOUND_ERR:
@@ -272,10 +272,11 @@ var jlms = {
 		alert(err);
 		var err = new Error();		
 		alert(err.stack);
+		*/
 	},	
 	failFileTransfer: function(error) {
 		var err = '';
-		
+		/*
 		switch(error.code) 
 		{			
 			case FileTransferError.FILE_NOT_FOUND_ERR:
@@ -297,6 +298,7 @@ var jlms = {
 		alert(err);
 		var err = new Error();		
 		alert(err.stack);
+		*/
 	}
 };
 
