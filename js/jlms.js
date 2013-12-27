@@ -90,16 +90,23 @@ var jlms = {
 												var reader = new FileReader();				
 												reader.onload = function(evt) {													
 													var results = $.parseJSON(evt.target.result);					
-													jlms.instances['config'] = results;										
+													jlms.instances['config'] = results;
+													var imgsLength = results.options.length;													
 													if( results !== null && results !== undefined && results.options !== undefined  ) {																								
-																jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: true}, function(dataDir) {																																		
-																	for(var i=0; i < results.options.length; i++ ) {
-																		var img = results.options[i].img;			
+																jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: true}, function(dirEntry) {
+																	var dwCounter=0;																	
+																	for(var i=0; i < imgsLength; i++ ) {
+																		var img = results.options[i].img;																		
 																		if( img.length > 1 )
-																		{
-																			dataDir.getFile(img.substr(img.lastIndexOf('/')+1), {create: true, exclusive: false}, function(fileEntry2){
-																					var ft = new FileTransfer();									
-																					ft.download(encodeURI(access.site+img), fileEntry2.fullPath, jlms.onImgDownloaded, jlms.failFileTransfer);											
+																		{																		
+																			dirEntry.getFile(img.substr(img.lastIndexOf('/')+1), {create: true, exclusive: false}, function(fileEntry2){
+																					var ft = new FileTransfer();
+																					ft.download(encodeURI(access.site+results.imgspath+fileEntry2.fullPath.substr(fileEntry2.fullPath.lastIndexOf('/')+1)), fileEntry2.fullPath, function(fileEntry3) {														
+																						dwCounter++;																						
+																						if(dwCounter == imgsLength) {																							
+																							$.mobile.changePage( "dashboard.html" );
+																						}		
+																					}, jlms.failFileTransfer);											
 																			}, jlms.failFile);	
 																		}
 																	}
@@ -131,15 +138,7 @@ var jlms = {
 		};				
 		reader.readAsText(file);
 	},	
-	onImgDownloaded: function(fileEntry) {		
-			jlms.dbCounter++;
-			var config = jlms.config();			
-			if(jlms.dbCounter == $(config.options).size()) {
-				jlms.dbCounter=0;
-				$.mobile.changePage( "dashboard.html" );
-			}		
-	},
-    onDeviceReady: function() {   						
+    onDeviceReady: function() {		
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, jlms.onFileSystemSuccess, jlms.failFile);		
     },
 	getData: function() {		
@@ -170,7 +169,7 @@ var jlms = {
 				value = el.default;
 			}				
 			
-			var row = {'img': imgName, 'value': value, 'uri': uri, 'name': name };
+			var row = {'img': imgName, 'value': value, 'uri': uri, 'name': name };			
 			data.push( row );			
 		}
 		
@@ -324,11 +323,12 @@ $(document).ready( function() {
 						var	src = dir.fullPath+'/'+el.img;								
 					} else {
 						var	src = '';								
-					}				
+					}					
 					html += '<li><a class="external-links" href="iframe.html" data-href="'+link+'" ><img src="'+src+'" class="ui-li-thumb">'+el.name+'</a></li>';															
 				}
 			});		
-			html += '</ul>';					
+			html += '</ul>';
+			
 			$('#dashboardPage #content').append(html).trigger('create');
 			$('#dashboardPage .external-links').click(function(){				
 				$('#dashboardPage').attr('data-ext-href', $(this).attr('data-href'));		
@@ -367,8 +367,8 @@ $(document).ready( function() {
 			var html = '<form><div class="ui-grid-d">';			
 			$(data).each( function(i, el) {			
 				html += '<div class="ui-block-a"><img style="max-height: 40px;" src="'+dir.fullPath+'/'+el.img+'"/></div>';
-				html += '<div class="ui-block-b">'+el.name+'</div>';								
-				html += '<div class="ui-block-d"><select name="flip-'+i+'" id="flip-'+i+'" data-role="slider" data-mini="true"><option '+(el.value =='off'?'selected':'')+' value="off">Off</option><option '+(el.value=='on'?'selected':'')+' value="on">On</option></select></div>';				
+				html += '<div class="ui-block-b" style="width: 45%;">'+el.name+'</div>';
+				html += '<div class="ui-block-d"><select class="flips" name="flip-'+i+'" id="flip-'+i+'" data-role="slider" data-mini="true"><option '+(el.value =='off'?'selected':'')+' value="off">Off</option><option '+(el.value=='on'?'selected':'')+' value="on">On</option></select></div>';				
 			});				
 			html += '</div></form>';						
 			$('#setupPage #content').append(html).trigger( "create" );					
@@ -428,5 +428,5 @@ $(document).ready( function() {
 			$('#loginPage-first #name').val('student_1');
 			$('#loginPage-first #password').val('password');		
 		})		
-	});					
+	});
 })		
