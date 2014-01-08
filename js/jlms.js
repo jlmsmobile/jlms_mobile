@@ -51,7 +51,9 @@ var jlms = {
 			function() {				
 				jlms.login();
 			},
-			jlms.failFile
+			function() {						
+				$.mobile.changePage("login-first.html");
+			}
 		);		
 	},	
 	onAfterLoadAccess: function(){
@@ -183,13 +185,13 @@ var jlms = {
 	login: function( site, name, pass) {			
 			if( site === undefined ) 
 			{					
-				jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: false, exclusive:true}, 
+				jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_ACCESS, {create: false, exclusive:true},
 					function(fileEntry){						
 						fileEntry.file( function(file) {
 							jlms.readAccess(file);
 						}, jlms.failFile);
 					}, 
-					function() {
+					function() {						
 						$.mobile.changePage("login-first.html");
 					}
 				);				
@@ -272,7 +274,7 @@ var jlms = {
 		alert(err);
 		var err = new Error();		
 		alert(err.stack);
-		*/
+		*/		
 	},	
 	failFileTransfer: function(error) {
 		var err = '';
@@ -297,8 +299,8 @@ var jlms = {
 		
 		alert(err);
 		var err = new Error();		
-		alert(err.stack);
-		*/
+		alert(err.stack);	
+		*/		
 	}
 };
 
