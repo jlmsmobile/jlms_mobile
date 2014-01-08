@@ -13,7 +13,8 @@
 	<content src="index.html" />
 	<access origin="*" />
 	<preference name="Fullscreen" value="true" />
-	<preference name="WebViewBounce" value="true" />	
+	<preference name="WebViewBounce" value="true" />
+	<preference name="android-minSdkVersion"  value="1" />
 	
 	<feature name="http://api.phonegap.com/1.0/battery"/>
     <feature name="http://api.phonegap.com/1.0/camera"/>
