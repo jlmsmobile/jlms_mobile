@@ -90,7 +90,7 @@ var jlms = {
 						ft.download(encodeURI(access.site+jlms.consts.PATH_ACCESS+jlms.consts.FILE_NAME_CONFIG), fileEntryTmp.fullPath, function(){
 							fileEntryTmp.file(function(fileTmp) {										
 									var reader1 = new FileReader();									
-									reader1.onload = function(evt) {
+									reader1.onload = function(evt) {										
 										var results1 = $.parseJSON(evt.target.result);										
 										jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_CONFIG, {create: true, exclusive: false}, function(fileEntry1) {												
 												fileEntry1.file(function(file) {														
@@ -98,10 +98,9 @@ var jlms = {
 														reader.onload = function(evt) {													
 															var results = $.parseJSON(evt.target.result);					
 															jlms.instances['config'] = results;
-															var imgsLength = results.options.length;
-alert(parseFloat(results1.version)+" > "+parseFloat(results.version));															
+															var imgsLength = results.options.length;					
 															if( (results.version == undefined || parseFloat(results1.version) > parseFloat(results.version)) && results !== null && results !== undefined && results.options !== undefined  ) {															
-																fileEntryTmp.copyTo(jlms.fileSystem.root, jlms.consts.FILE_NAME_CONFIG, function() { alert('file was copied'); }, function() { alert('error: file was\'t copied'); });
+																fileEntryTmp.copyTo(jlms.fileSystem.root, jlms.consts.FILE_NAME_CONFIG, function() { /*alert('file was copied');*/ }, function() { /*alert('error: file was\'t copied'); */});
 																jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: true}, function(dirEntry) {																	
 																	var dwCounter=0;																	
 																	for(var i=0; i < imgsLength; i++ ) {
