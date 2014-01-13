@@ -341,8 +341,9 @@ $(document).ready( function() {
 						var	src = dir.fullPath+'/'+el.img;								
 					} else {
 						var	src = '';								
-					}					
-					html += '<li><a class="external-links" href="iframe.html" data-href="'+link+'" ><img src="'+src+'" class="ui-li-thumb">'+el.name+'</a></li>';															
+					}	
+					var rand = Math.random() * (15 - 5) + 5;					
+					html += '<li><a class="external-links" href="iframe.html" data-href="'+link+'" ><img src="'+src+'" class="ui-li-thumb">'+el.name+'<font style="background-color: red; color: white; padding: 3px 5px; margin-left: 3px;">'+rand+'</font></a></li>';															
 				}
 			});		
 			html += '</ul>';
