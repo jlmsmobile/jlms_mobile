@@ -342,7 +342,7 @@ $(document).ready( function() {
 					} else {
 						var	src = '';								
 					}	
-					var rand = Math.random() * (15 - 5) + 5;					
+					var rand = Math.floor(Math.random() * (7)) + 3;					
 					html += '<li><a class="external-links" href="iframe.html" data-href="'+link+'" ><img src="'+src+'" class="ui-li-thumb">'+el.name+'<font style="background-color: red; color: white; padding: 3px 5px; margin-left: 3px;">'+rand+'</font></a></li>';															
 				}
 			});		
