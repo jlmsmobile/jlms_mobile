@@ -343,7 +343,7 @@ $(document).ready( function() {
 						var	src = '';								
 					}	
 					var rand = Math.floor(Math.random() * (7)) + 3;					
-					html += '<li><a class="external-links" href="iframe.html" data-href="'+link+'" ><img src="'+src+'" class="ui-li-thumb" style="top: 14%;" /><span style="top: 37%; position: absolute;">'+el.name+'<font style="background-color: red; color: white; padding: 3px 5px; margin-left: 3px;">'+rand+'</font></span></a></li>';															
+					html += '<li><a class="external-links" href="iframe.html" data-href="'+link+'" ><img src="'+src+'" class="ui-li-thumb" style="top: 14%;" /><span style="top: 38%; position: absolute;">'+el.name+'<font style="background-color: red; color: white; padding: 3px 5px; margin-left: 3px;">'+rand+'</font></span></a></li>';															
 				}
 			});		
 			html += '</ul>';
