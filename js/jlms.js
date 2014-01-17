@@ -382,7 +382,8 @@ $(document).ready( function() {
 	});
 	
 	$( document ).delegate("#messagesPage", "pageinit", function() {		
-		var access = jlms.access();					
+		var access = jlms.access();	
+		alert('pageinit');		
 		$.ajax({
 			url: access.site+'/index.php?option=com_jlms_mobile&task=messages',
 			type: 'get',
@@ -391,14 +392,14 @@ $(document).ready( function() {
 			beforeSend: function (xhr){ 
 				xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 			},
-			success: function(data) {		
+			success: function(data) {						
 					var data = $.parseJSON(data);
 					var pages = '';			
 					var content = '<ul data-role="listview">';					
 					$(data).each( function(i, el) {				
 						var messId = 'message_'+el.type+'_'+el.id+'Page';					
 						pages += '<div data-role="page" id="'+messId+'">';
-						pages += '	<div data-role="header">';
+						pages += '	<div data-role="header"><a href="messages.html" data-icon="back">Back</a>';
 						pages += '	<h1>'+el.subject+'</h1>';
 						pages += '	</div>';
 						pages += '	<div data-role="content">'+el.message+'</div>';								
@@ -408,8 +409,8 @@ $(document).ready( function() {
 						pages += '</div>';
 						content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';						
 					});				
-					content += '</ul>';						
-					$('#messagesPage #content').append(content).trigger( "create" );					
+					content += '</ul>';											
+					$('#messagesPage #content').append(content).trigger('create');										
 					$(pages).appendTo( document.body );					
 			},		
 			error: function( jqXHR, textStatus, errorThrown){						
