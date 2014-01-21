@@ -382,8 +382,7 @@ $(document).ready( function() {
 	});
 	
 	$( document ).delegate("#messagesPage", "pageinit", function() {		
-		var access = jlms.access();	
-		alert('pageinit');		
+		var access = jlms.access();		
 		$.ajax({
 			url: access.site+'/index.php?option=com_jlms_mobile&task=messages',
 			type: 'get',
@@ -404,7 +403,7 @@ $(document).ready( function() {
 						pages += '	</div>';
 						pages += '	<div data-role="content">'+el.message+'</div>';								
 						pages += '	<div data-role="footer" data-position="fixed">';
-						pages += '	<h4></h4>';
+						pages += '	<h4><input name="file" id="file" value="" type="file"><input name="textinput-hide" id="textinput-hide" value="" type="text"><a href="" data-icon="back">Send</a></h4>';
 						pages += '	</div>';
 						pages += '</div>';
 						content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';						
