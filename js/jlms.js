@@ -489,7 +489,7 @@ $(document).ready( function() {
 							$('#file-'+messId).trigger('click');							
 						});
 						$('#send-'+messId).bind('click', function(){							
-							alert($('#file-'+messId).attr('value'));							
+							alert($('#file-'+messId).val());							
 						});
 					});				
 					content += '</ul>';					
