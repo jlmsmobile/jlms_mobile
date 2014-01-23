@@ -1,1 +1,6 @@
 #login label{color: #ffffff !important;}
+.ui-grid-file{overflow:hidden}
+.ui-grid-file .ui-block-a{width: 5%}
+.ui-grid-file .ui-block-b{width: 55%; padding: 0 10px;}
+.ui-grid-file .ui-block-c{width: 10%}
+.ui-grid-file .ui-block-a{clear:left}
