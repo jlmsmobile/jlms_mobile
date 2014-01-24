@@ -488,32 +488,31 @@ $(document).ready( function() {
 						});						
 						
 						$('#send-'+messId).bind('click', function(){						
-							var file = $('#text-'+messId).val();
-							if( file.length ) {
-								 var params = {};
-								params.value1 = "par1";
-								params.value2 = "par2";
-								params.value3 = "par3";
-								options.params = params;			
-								ft.upload(file, encodeURI(access.site+jlms.consts.MESSAGE_POST), function(r) {
-									alert(r.response);
-								}, function(){}, options);
-							}; 
-							/*
-							var text = $('#text-'+messId).val();
-							if(text.length > 0) {									
-								$.ajax({
-									type: "POST",
-									url: access.site+jlms.consts.MESSAGE_POST,
-									enctype: 'multipart/form-data',
-									data: {'file': $('file-'+messId).val(), 'text': text, 'id': $('id-'+messId).val(), 'type': el.type},
-									success: function () {
-										alert("Data Uploaded: ");
-									}
-									fail: 
-								});    										
+							var file = $('#file-'+messId).val();
+							var text = $('#text-'+messId).val();							
+							
+							if(text.length > 0) {								
+								if( file.length ) {
+									var params = {};
+									params.value1 = "par1";
+									params.value2 = "par2";
+									params.value3 = "par3";
+									options.params = params;			
+									ft.upload(file, encodeURI(access.site+jlms.consts.MESSAGE_POST), function(r) {
+										alert(r.response);
+									}, function(){}, options);
+								} else {									
+									$.ajax({
+										type: "POST",
+										url: access.site+jlms.consts.MESSAGE_POST,
+										enctype: 'multipart/form-data',
+										data: {'text': text, 'id': $('id-'+messId).val(), 'type': el.type},
+										success: function () {
+											alert("Data Uploaded: ");
+										}										
+									});    																			
+								}
 							}
-							*/
 						});						
 					});				
 					content += '</ul>';					
