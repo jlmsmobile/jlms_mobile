@@ -5,7 +5,7 @@ var jlms = {
 	instances: [],
 	consts: {
 		AUTH_PAGE: 'index.php?option=com_jlms_mobile&task=checkaccess',
-		MESSAGE_POST: 'index.php?option=com_jlms_mobile&task=messagesend',
+		MESSAGE_POST: 'index.php?option=com_jlms_mobile&task=sendmessage',
 		PATH_ACCESS: 'config/',
         FILE_NAME_USERSETUP: 'usersetup.json',
 		FILE_NAME_CONFIG_TMP: 'mconfig_tmp.json',
@@ -472,25 +472,49 @@ $(document).ready( function() {
 						pages += '		<h1>'+el.subject+'</h1>';
 						pages += '	</div>';
 						pages += '	<div data-role="content">'+el.message+'</div>';					
-						pages += '	<div data-role="footer" data-position="fixed" class="ui-bar">';						
-						pages += '		<form action="'+access.site+jlms.consts.MESSAGE_POST+'" method="POST" enctype="multipart/form-data" id="form-'+messId+'" >';
+						pages += '	<div data-role="footer" data-position="fixed" class="ui-bar">';												
 						pages += '		<fieldset class="ui-grid-file">';						
 						pages += '		<div class="ui-block-a"><button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button></div>';
-						pages += '		<div class="ui-block-b"><input id="text-'+messId+'" type="text" data-theme="c" name="text" /></div>';
-						pages += '		<div class="ui-block-c"><button type="button" id="send-'+messId+'" data-theme="b">Send</button></div>';
-						pages += '		<input type="file" value="" id="file-'+messId+'" name="file" style="visible: hidden; width: 1px;" data-role="none" >';
-						pages += '		</fieldset>';
-						pages += '		</form>';
+						pages += '		<div class="ui-block-b"><input id="text-'+messId+'" type="text" data-theme="c" /></div>';
+						pages += '		<div class="ui-block-c"><button type="submit" id="send-'+messId+'" data-theme="b">Send</button></div>';						
+						pages += '		<input type="file" value="" id="file-'+messId+'" style="visible: hidden; width: 1px;" data-role="none" >';
+						pages += '		</fieldset>';						
 						pages += '	</div>';						
 						pages += '</div>';						
 						content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';						
 						$(pages).appendTo( document.body );											
 						$('#file-btn-'+messId).bind('click', function(e){							
 							$('#file-'+messId).trigger('click');							
-						});
-						$('#send-'+messId).bind('click', function(){							
-							alert($('#file-'+messId).val());							
-						});
+						});						
+						
+						$('#send-'+messId).bind('click', function(){						
+							var file = $('#text-'+messId).val();
+							if( file.length ) {
+								 var params = {};
+								params.value1 = "par1";
+								params.value2 = "par2";
+								params.value3 = "par3";
+								options.params = params;			
+								ft.upload(file, encodeURI(access.site+jlms.consts.MESSAGE_POST), function(r) {
+									alert(r.response);
+								}, function(){}, options);
+							}; 
+							/*
+							var text = $('#text-'+messId).val();
+							if(text.length > 0) {									
+								$.ajax({
+									type: "POST",
+									url: access.site+jlms.consts.MESSAGE_POST,
+									enctype: 'multipart/form-data',
+									data: {'file': $('file-'+messId).val(), 'text': text, 'id': $('id-'+messId).val(), 'type': el.type},
+									success: function () {
+										alert("Data Uploaded: ");
+									}
+									fail: 
+								});    										
+							}
+							*/
+						});						
 					});				
 					content += '</ul>';					
 					$('#messagesPage #content').append(content).trigger('create');
