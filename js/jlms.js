@@ -297,7 +297,7 @@ var jlms = {
 	},	
 	failFileTransfer: function(error) {
 		var err = '';
-		/*
+		
 		switch(error.code) 
 		{			
 			case FileTransferError.FILE_NOT_FOUND_ERR:
@@ -316,10 +316,11 @@ var jlms = {
 				alert(error.code+'  '+error.target);
 		}
 		
-		alert(err);
+		alert(err+"\nsource:"+error.source+"\ntarget:"+error.target);
+		/*
 		var err = new Error();		
-		alert(err.stack);	
-		*/		
+		alert(err.stack);			
+		*/
 	}
 };
 
@@ -445,7 +446,7 @@ $(document).ready( function() {
 		})
 		
 		$('#loginPage-first #test-data-btn').click(function() {
-			$('#loginPage-first #site').val('http://projects.joomlalms.com/mobile/');
+			$('#loginPage-first #site').val('http://projects.joomlalms.com/mobile32/');
 			$('#loginPage-first #name').val('student_1');
 			$('#loginPage-first #password').val('password');		
 		})		
@@ -487,20 +488,44 @@ $(document).ready( function() {
 							$('#file-'+messId).trigger('click');							
 						});						
 						
-						$('#send-'+messId).bind('click', function(){						
-							var file = $('#file-'+messId).val();
-							var text = $('#text-'+messId).val();							
-							
-							if(text.length > 0) {								
-								if( file.length ) {
-									var params = {};
-									params.value1 = "par1";
-									params.value2 = "par2";
-									params.value3 = "par3";
-									options.params = params;			
-									ft.upload(file, encodeURI(access.site+jlms.consts.MESSAGE_POST), function(r) {
-										alert(r.response);
-									}, function(){}, options);
+						$('#send-'+messId).bind('click', function(){							
+							var text = $('#text-'+messId).val();														
+							if(text.length > 0) {			
+								//if( file.length ) {									
+									jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_CONFIG, {create: false, exclusive: false}, function(fileEntry) {
+										var options = new FileUploadOptions();
+										options.fileKey="file";
+										options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
+										//options.mimeType="text/plain";
+										options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
+										
+										var params = new Object();										
+										params.message = text;
+										params.type = el.type;
+										params.id = el.id;
+										options.params = params;										
+										
+										var ft = new FileTransfer();										
+										ft.upload(fileEntry.fullPath, access.site+jlms.consts.MESSAGE_POST, function(r) {
+											var re = /alert\([',"](.*)[',"]\)/i
+											var found = r.response.match(re);
+											if( found[1] != undefined ) {
+												alert(found[1])
+											} else {
+												switch(el.type) {
+													case 'db':
+														alert('File was sent');
+													break
+													case 'mb':
+														alert('Message was sent');
+													break	
+												}
+											}											
+										}, function(error){ 
+											  jlms.failFileTransfer(error);											  
+										}, options, true);										
+									});
+									/*
 								} else {									
 									$.ajax({
 										type: "POST",
@@ -512,6 +537,7 @@ $(document).ready( function() {
 										}										
 									});    																			
 								}
+								*/
 							}
 						});						
 					});				
