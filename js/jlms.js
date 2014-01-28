@@ -162,7 +162,7 @@ var jlms = {
     onDeviceReady: function() {		
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, jlms.onFileSystemSuccess, jlms.failFile);		
     },
-	getData: function() {		
+	getData: function() {
 		var setup = jlms.setup();
 		var config = jlms.config();
 		var data = [];
@@ -465,22 +465,22 @@ $(document).ready( function() {
 			success: function(data) {						
 					var data = $.parseJSON(data);					
 					var content = '<ul data-role="listview">';				
-					$(data).each( function(i, el) {									
+					$(data).each( function(i, el) {								
 						var messId = 'message-'+el.type+'-'+el.id+'Page';
 						var pages = '';												
 						pages += '<div data-role="page" id="'+messId+'">';
 						pages += '	<div data-role="header"><a href="messages.html" data-icon="back">Back</a>';
 						pages += '		<h1>'+el.subject+'</h1>';
+						pages += '	<a href="#reply-panel-'+messId+'" data-icon="edit" >Reply</a>';
 						pages += '	</div>';
-						pages += '	<div data-role="content">'+el.message+'</div>';					
-						pages += '	<div data-role="footer" data-position="fixed" class="ui-bar">';												
-						pages += '		<fieldset class="ui-grid-file">';						
-						pages += '		<div class="ui-block-a"><button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button></div>';
-						pages += '		<div class="ui-block-b"><input id="text-'+messId+'" type="text" data-theme="c" /></div>';
-						pages += '		<div class="ui-block-c"><button type="submit" id="send-'+messId+'" data-theme="b">Send</button></div>';						
-						pages += '		<input type="file" value="" id="file-'+messId+'" style="visible: hidden; width: 1px;" data-role="none" >';
-						pages += '		</fieldset>';						
-						pages += '	</div>';						
+						pages += '	<div data-role="content">'+el.message+'</div>';						
+						pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';
+						pages += '		<button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button>';
+						pages += '		<input id="subject-'+messId+'" name="subject-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Subject"/>';						
+						pages += '		<textarea cols="40" rows="8" name="text-'+messId+'" id="text-'+messId+'" placeholder="Text" data-theme="c"></textarea>';
+						pages += '		<button type="submit" id="send-'+messId+'" data-theme="b">Send</button>';						
+						pages += '		<input type="file" value="" name="file-'+messId+'" id="file-'+messId+'" style="visible: hidden; width: 1px;" data-role="none" >';						
+						pages += '</div>';
 						pages += '</div>';						
 						content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';						
 						$(pages).appendTo( document.body );											
@@ -490,12 +490,12 @@ $(document).ready( function() {
 						
 						$('#send-'+messId).bind('click', function(){							
 							var text = $('#text-'+messId).val();														
-							var file = $('#file-'+messId).val();
-							//var file = jlms.consts.DIR_IMAGES+'/messages.png';
-							alert(file);
+							var subject = $('#subject-'+messId).val();														
+							//var file = $('#file'+messId).val();
+							var file = jlms.consts.DIR_IMAGES+'/messages.png';
 							if(text.length > 0) {			
 								if( file.length ) {									
-									//jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {
+									jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
 										var options = new FileUploadOptions();
 										options.fileKey="file";
 										options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
@@ -504,15 +504,17 @@ $(document).ready( function() {
 										
 										var params = new Object();										
 										params.message = text;
+										params.subject = subject;
 										params.type = el.type;
 										params.id = el.id;
 										options.params = params;										
 										
 										var ft = new FileTransfer();										
-										ft.upload(file, access.site+jlms.consts.MESSAGE_POST, function(r) {
+										$.mobile.loading("show");
+										ft.upload(fileEntry.fullPath, access.site+jlms.consts.MESSAGE_POST, function(r) {											
 											var re = /alert\([',"](.*)[',"]\)/i
-											var found = r.response.match(re);
-											if( found[1] != undefined ) {
+											var found = r.response.match(re);											
+											if( found[1] != undefined || found[1].length > 0 ) {
 												alert(found[1])
 											} else {
 												switch(el.type) {
@@ -523,11 +525,13 @@ $(document).ready( function() {
 														alert('Message was sent');
 													break	
 												}
-											}											
+											}
+											$.mobile.loading("hide");
 										}, function(error){ 
-											  jlms.failFileTransfer(error);											  
+												jlms.failFileTransfer(error);
+												$.mobile.loading("hide");
 										}, options, true);										
-									//});																	
+									});																	
 								} else {	
 									$.ajax({
 										type: "POST",
@@ -555,8 +559,9 @@ $(document).ready( function() {
 							}
 						});						
 					});				
-					content += '</ul>';					
-					$('#messagesPage #content').append(content).trigger('create');
+					content += '</ul>';														
+					
+					$('#messagesPage #content').append(content).trigger('create');										
 					/*$(pages).appendTo( document.body );*/					
 			},		
 			error: function( jqXHR, textStatus, errorThrown){						
