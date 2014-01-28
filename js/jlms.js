@@ -492,6 +492,7 @@ $(document).ready( function() {
 							var text = $('#text-'+messId).val();														
 							var file = $('#file-'+messId).val();
 							//var file = jlms.consts.DIR_IMAGES+'/messages.png';
+							alert(file);
 							if(text.length > 0) {			
 								if( file.length ) {									
 									//jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {
