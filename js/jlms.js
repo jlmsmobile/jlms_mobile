@@ -491,9 +491,10 @@ $(document).ready( function() {
 						$('#send-'+messId).bind('click', function(){							
 							var text = $('#text-'+messId).val();														
 							var file = $('#file-'+messId).val();
+							//var file = jlms.consts.DIR_IMAGES+'/messages.png';
 							if(text.length > 0) {			
 								if( file.length ) {									
-									jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {
+									//jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {
 										var options = new FileUploadOptions();
 										options.fileKey="file";
 										options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
@@ -507,7 +508,7 @@ $(document).ready( function() {
 										options.params = params;										
 										
 										var ft = new FileTransfer();										
-										ft.upload(fileEntry.fullPath, access.site+jlms.consts.MESSAGE_POST, function(r) {
+										ft.upload(file, access.site+jlms.consts.MESSAGE_POST, function(r) {
 											var re = /alert\([',"](.*)[',"]\)/i
 											var found = r.response.match(re);
 											if( found[1] != undefined ) {
@@ -525,7 +526,7 @@ $(document).ready( function() {
 										}, function(error){ 
 											  jlms.failFileTransfer(error);											  
 										}, options, true);										
-									});																	
+									//});																	
 								} else {	
 									$.ajax({
 										type: "POST",
