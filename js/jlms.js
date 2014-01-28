@@ -490,9 +490,10 @@ $(document).ready( function() {
 						
 						$('#send-'+messId).bind('click', function(){							
 							var text = $('#text-'+messId).val();														
+							var file = $('#file-'+messId).val();
 							if(text.length > 0) {			
-								//if( file.length ) {									
-									jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_CONFIG, {create: false, exclusive: false}, function(fileEntry) {
+								if( file.length ) {									
+									jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {
 										var options = new FileUploadOptions();
 										options.fileKey="file";
 										options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
@@ -524,20 +525,31 @@ $(document).ready( function() {
 										}, function(error){ 
 											  jlms.failFileTransfer(error);											  
 										}, options, true);										
-									});
-									/*
-								} else {									
+									});																	
+								} else {	
 									$.ajax({
 										type: "POST",
 										url: access.site+jlms.consts.MESSAGE_POST,
 										enctype: 'multipart/form-data',
-										data: {'text': text, 'id': $('id-'+messId).val(), 'type': el.type},
-										success: function () {
-											alert("Data Uploaded: ");
+										data: {'message': text, 'id': el.id, 'type': el.type},
+										success: function (r) {
+											var re = /alert\([',"](.*)[',"]\)/i
+											var found = r.match(re);
+											if( found[1] != undefined ) {
+												alert(found[1])
+											} else {
+												switch(el.type) {
+													case 'db':
+														alert('File was sent');
+													break
+													case 'mb':
+														alert('Message was sent');
+													break	
+												}
+											}			
 										}										
 									});    																			
-								}
-								*/
+								}								
 							}
 						});						
 					});				
