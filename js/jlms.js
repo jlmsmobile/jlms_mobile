@@ -6,6 +6,7 @@ var jlms = {
 	consts: {
 		AUTH_PAGE: 'index.php?option=com_jlms_mobile&task=checkaccess',
 		MESSAGE_POST: 'index.php?option=com_jlms_mobile&task=sendmessage',
+		DROPBOX_POST: 'index.php?option=com_jlms_mobile&task=dropboxsend',
 		PATH_ACCESS: 'config/',
         FILE_NAME_USERSETUP: 'usersetup.json',
 		FILE_NAME_CONFIG_TMP: 'mconfig_tmp.json',
@@ -452,6 +453,121 @@ $(document).ready( function() {
 		})		
 	});
 	
+	$( document ).delegate("#homeworkPage", "pageinit", function() {		
+		var access = jlms.access();		
+		$.ajax({
+			url: access.site+'/index.php?option=com_jlms_mobile&task=homework',
+			type: 'get',
+			dataType: 'html', 
+			data: '{}',
+			beforeSend: function (xhr){ 
+				xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+			},
+			success: function(data) {					
+					var data = $.parseJSON(data);					
+					var content = '<ul data-role="listview">';				
+					$(data).each( function(i, el) {								
+						var hwId = 'message-'+el.id+'Page';
+						var pages = '';												
+						pages += '<div data-role="page" id="'+hwId+'">';
+						pages += '	<div data-role="header"><a href="homework.html" data-icon="back">Back</a>';
+						pages += '		<h1>'+el.name+'</h1>';
+						pages += '	<a href="#reply-panel-'+hwId+'" data-icon="edit" >Reply</a>';
+						pages += '	</div>';
+						pages += '	<div data-role="content">'+el.desc+'</div>';						
+						pages += '<div data-role="panel" id="reply-panel-'+hwId+'" data-position="right" data-display="overlay" data-theme="b">';												
+						switch(el.type){						
+							case 2:
+							pages += '		<textarea cols="40" rows="8" name="text-'+hwId+'" id="text-'+hwId+'" placeholder="Description" data-theme="c"></textarea>';							
+							break;
+							case 3:				
+							pages += '		<div>File:<span id="file-path-'+hwId+'" ></span></div>';
+							pages += '		<button type="button" id="file-btn-'+hwId+'" data-icon="grid" data-theme="a">File</button>';						
+							pages += '		<input type="file" value="" name="file-'+hwId+'" id="file-'+hwId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
+							break;
+						}																		
+						pages += '		<button type="submit" id="send-'+hwId+'" data-theme="b" style="margin-top: 5px;">Mark as completed</button>';																		
+						pages += '</div>';						
+						pages += '</div>';						
+						content += '<li><a href="#'+hwId+'">'+el.name+'</a></li>';
+						$(pages).appendTo( document.body );											
+						$('#file-'+hwId).bind('change', function() { 
+							var file = $('#file'+hwId).val();
+							$('#file-path-'+hwId).text(file.substr(file.lastIndexOf('/')+1)); 
+						});
+						$('#file-btn-'+hwId).bind('click', function(e){							
+							$('#file-'+hwId).trigger('click');							
+						});						
+						
+						$('#send-'+hwId).bind('click', function(){
+							if(el.type == 3){
+								//var file = $('#file'+hwId).val();
+								var file = jlms.consts.DIR_IMAGES+'/messages.png';
+								if( file.length ) {
+									jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
+										var options = new FileUploadOptions();
+										options.fileKey="file";
+										//options.fileName=file.substr(file.lastIndexOf('/')+1);
+										options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
+										//options.mimeType="text/plain";
+										options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
+										
+										var params = new Object();																				
+										params.id = el.id;
+										params.type = el.type;
+										params.completed = true;											
+										options.params = params;
+										
+										$.mobile.loading("show");											
+										var ft = new FileTransfer();																				
+										var action = access.site+jlms.consts.HW_POST;		
+										//ft.upload(file, action, function(r) {											
+										ft.upload(fileEntry.fullPath, action, function(r) {											
+											var re = /alert\([',"](.*)[',"]\)/i
+											var found = r.response.match(re);											
+											if( found[1] != undefined || found[1].length > 0 ) {
+												alert(found[1])
+											} else {													
+												alert('Completed');
+											}
+											$.mobile.loading("hide");
+										}, function(error){ 
+												jlms.failFileTransfer(error);
+												$.mobile.loading("hide");
+										}, options, true);										
+									});
+								}
+							}else{
+								$.ajax({
+									type: "POST",
+									url: access.site+jlms.consts.HW_POST,
+									enctype: 'multipart/form-data',
+									data: {'desc': desc, 'id': el.id, 'type': el.type},
+									success: function (r) {
+										var re = /alert\([',"](.*)[',"]\)/i
+										var found = r.match(re);
+										if( found[1] != undefined ) {
+											alert(found[1])
+										} else {
+											alert('Completed');
+										}			
+									}										
+								});
+							}
+						});						
+					});				
+					content += '</ul>';														
+					
+					$('#messagesPage #content').append(content).trigger('create');										
+					/*$(pages).appendTo( document.body );*/					
+			},		
+			error: function( jqXHR, textStatus, errorThrown){						
+				//alert(textStatus);
+				//alert(errorThrown);
+			}
+		});
+	});
+	
 	$( document ).delegate("#messagesPage", "pageinit", function() {		
 		var access = jlms.access();		
 		$.ajax({
@@ -462,7 +578,7 @@ $(document).ready( function() {
 			beforeSend: function (xhr){ 
 				xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 			},
-			success: function(data) {						
+			success: function(data) {					
 					var data = $.parseJSON(data);					
 					var content = '<ul data-role="listview">';				
 					$(data).each( function(i, el) {								
@@ -474,44 +590,75 @@ $(document).ready( function() {
 						pages += '	<a href="#reply-panel-'+messId+'" data-icon="edit" >Reply</a>';
 						pages += '	</div>';
 						pages += '	<div data-role="content">'+el.message+'</div>';						
-						pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';
-						pages += '		<button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button>';
-						pages += '		<input id="subject-'+messId+'" name="subject-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Subject"/>';						
-						pages += '		<textarea cols="40" rows="8" name="text-'+messId+'" id="text-'+messId+'" placeholder="Text" data-theme="c"></textarea>';
-						pages += '		<button type="submit" id="send-'+messId+'" data-theme="b">Send</button>';						
-						pages += '		<input type="file" value="" name="file-'+messId+'" id="file-'+messId+'" style="visible: hidden; width: 1px;" data-role="none" >';						
+						pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';						
+						if(el.type == 'mb') {//for mailbox only
+							pages += '		<input id="subject-'+messId+'" name="subject-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Subject"/>';						
+							pages += '		<textarea cols="40" rows="8" name="text-'+messId+'" id="text-'+messId+'" placeholder="Text" data-theme="c"></textarea>';
+						} else {
+							pages += '		<input id="name-'+messId+'" name="name-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Name"/>';						
+							pages += '		<textarea cols="40" rows="8" name="comment-'+messId+'" id="comment-'+messId+'" placeholder="Comment" data-theme="c"></textarea>';
+						}
+						pages += '		<div>File:<span id="file-path-'+messId+'" ></span></div>';						
+						pages += '		<button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button>';						
+						pages += '		<button type="submit" id="send-'+messId+'" data-theme="b" style="margin-top: 5px;">Send</button>';						
+						pages += '		<input type="file" value="" name="file-'+messId+'" id="file-'+messId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
 						pages += '</div>';
+						if(el.type == 'db') {//for mailbox only
+							pages += '	<div data-role="footer" data-position="fixed"><a href="'+access.site+'/'+el.filelink+'">'+el.name+'</a></div>';							
+						}
 						pages += '</div>';						
 						content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';						
 						$(pages).appendTo( document.body );											
+						$('#file-'+messId).bind('change', function() { 
+							var file = $('#file'+messId).val();
+							$('#file-path-'+messId).text(file.substr(file.lastIndexOf('/')+1)); 
+						});
 						$('#file-btn-'+messId).bind('click', function(e){							
 							$('#file-'+messId).trigger('click');							
 						});						
 						
-						$('#send-'+messId).bind('click', function(){							
-							var text = $('#text-'+messId).val();														
-							var subject = $('#subject-'+messId).val();														
+						$('#send-'+messId).bind('click', function(){
+							var canSend = false;
+							if(el.type == 'mb') {
+								var text = $('#text-'+messId).val();														
+								var subject = $('#subject-'+messId).val();								
+								canSend = (text.length > 0);
+							} else {
+								var name = $('#name-'+messId).val();														
+								var comment = $('#comment-'+messId).val();
+								canSend = true;
+							}
 							//var file = $('#file'+messId).val();
 							var file = jlms.consts.DIR_IMAGES+'/messages.png';
-							if(text.length > 0) {			
+							if($send) {			
 								if( file.length ) {									
 									jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
 										var options = new FileUploadOptions();
 										options.fileKey="file";
+										//options.fileName=file.substr(file.lastIndexOf('/')+1);
 										options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
 										//options.mimeType="text/plain";
 										options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
 										
-										var params = new Object();										
-										params.message = text;
-										params.subject = subject;
-										params.type = el.type;
+										var params = new Object();																				
 										params.id = el.id;
-										options.params = params;										
+										params.type = el.type;										
+										if(el.type == 'mb') {										
+											var action = access.site+jlms.consts.MESSAGE_POST;
+											params.message = text;
+											params.subject = subject;											
+										} else {
+											var action = access.site+jlms.consts.DROPBOX_POST;
+											params.comment = comment;
+											params.name = name;											
+										}										
+										options.params = params;
 										
-										var ft = new FileTransfer();										
 										$.mobile.loading("show");
-										ft.upload(fileEntry.fullPath, access.site+jlms.consts.MESSAGE_POST, function(r) {											
+										
+										var ft = new FileTransfer();																				
+										//ft.upload(file, action, function(r) {											
+										ft.upload(fileEntry.fullPath, action, function(r) {											
 											var re = /alert\([',"](.*)[',"]\)/i
 											var found = r.response.match(re);											
 											if( found[1] != undefined || found[1].length > 0 ) {
@@ -533,28 +680,30 @@ $(document).ready( function() {
 										}, options, true);										
 									});																	
 								} else {	
-									$.ajax({
-										type: "POST",
-										url: access.site+jlms.consts.MESSAGE_POST,
-										enctype: 'multipart/form-data',
-										data: {'message': text, 'id': el.id, 'type': el.type},
-										success: function (r) {
-											var re = /alert\([',"](.*)[',"]\)/i
-											var found = r.match(re);
-											if( found[1] != undefined ) {
-												alert(found[1])
-											} else {
-												switch(el.type) {
-													case 'db':
-														alert('File was sent');
-													break
-													case 'mb':
-														alert('Message was sent');
-													break	
-												}
-											}			
-										}										
-									});    																			
+									if(el.type == 'mb') {
+										$.ajax({
+											type: "POST",
+											url: access.site+jlms.consts.MESSAGE_POST,
+											enctype: 'multipart/form-data',
+											data: {'message': text, 'id': el.id, 'type': el.type},
+											success: function (r) {
+												var re = /alert\([',"](.*)[',"]\)/i
+												var found = r.match(re);
+												if( found[1] != undefined ) {
+													alert(found[1])
+												} else {
+													switch(el.type) {
+														case 'db':
+															alert('File was sent');
+														break
+														case 'mb':
+															alert('Message was sent');
+														break	
+													}
+												}			
+											}										
+										});
+									}
 								}								
 							}
 						});						
