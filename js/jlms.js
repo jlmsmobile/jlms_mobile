@@ -491,7 +491,7 @@ $(document).ready( function() {
 						pages += '</div>';						
 						content += '<li><a href="#'+hwId+'">'+el.name+'</a></li>';
 						$(pages).appendTo( document.body );											
-						$('#file-'+hwId).bind('change', function() { 
+						$('#file-'+hwId).bind('change', function() {
 							var file = $('#file'+hwId).val();
 							$('#file-path-'+hwId).text(file.substr(file.lastIndexOf('/')+1)); 
 						});
@@ -558,7 +558,7 @@ $(document).ready( function() {
 					});				
 					content += '</ul>';														
 					
-					$('#messagesPage #content').append(content).trigger('create');										
+					$('#homeworkPage #content').append(content).trigger('create');										
 					/*$(pages).appendTo( document.body );*/					
 			},		
 			error: function( jqXHR, textStatus, errorThrown){						
@@ -718,7 +718,7 @@ $(document).ready( function() {
 				//alert(errorThrown);
 			}
 		});
-	});
+	});	
 	
 	$( document ).delegate("#fileBrowserPage", "pageinit", function() {	
 		
