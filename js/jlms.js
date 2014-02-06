@@ -507,7 +507,7 @@ $(document).ready( function() {
 									pages += '		<input type="file" value="" name="file-'+hwId+'" id="file-'+hwId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
 									break;
 								}																		
-								pages += '		<button type="submit" id="send-'+hwId+'" data-theme="b" style="margin-top: 5px;">Completed</button>';																		
+								pages += '		<button type="submit" id="send-'+hwId+'" data-theme="b" style="margin-top: 2px;">Completed</button>';																		
 								pages += '</div>';						
 								pages += '</div>';						
 								content += '<li><a href="#'+hwId+'">'+el.name+'</a></li>';
@@ -569,6 +569,7 @@ $(document).ready( function() {
 												enctype: 'multipart/form-data',
 												data: {'write_text': text, 'id': el.id, 'type': el.type},
 												success: function (r) {
+													alert('-2-'+r.response);
 													if(res = jlms.checkAlert(r)) {
 														alert(res);
 													} else {
@@ -620,7 +621,7 @@ $(document).ready( function() {
 				xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 			},
 			success: function(data) {					
-					var data = $.parseJSON(data);					
+					var data = $.parseJSON(data);										
 					var content = '<ul data-role="listview">';				
 					$(data).each( function(i, el) {								
 						var messId = 'message-'+el.type+'-'+el.id+'Page';
@@ -641,7 +642,7 @@ $(document).ready( function() {
 						}
 						pages += '		<div>File:<span id="file-path-'+messId+'" ></span></div>';						
 						pages += '		<button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button>';						
-						pages += '		<button type="submit" id="send-'+messId+'" data-theme="b" style="margin-top: 5px;">Send</button>';						
+						pages += '		<button type="submit" id="send-'+messId+'" data-theme="b" style="margin-top: 2px;">Send</button>';						
 						pages += '		<input type="file" value="" name="file-'+messId+'" id="file-'+messId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
 						pages += '</div>';
 						if(el.type == 'db') {//for mailbox only
