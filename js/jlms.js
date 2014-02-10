@@ -367,27 +367,14 @@ $(document).ready( function() {
 	});
 	
 	$( document ).delegate("#iframePage", "pageinit", function() {			
-		//$('#iframePage iframe').attr('src',$('#dashboardPage').attr('data-ext-href'));
-		var access = jlms.access();					
-		$.ajax({
-					url: $('#dashboardPage').attr('data-ext-href'),
-					type: 'post',
-					dataType: 'html', 
-					data: '{}',
-					beforeSend: function (xhr){ 
-						xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
-					},
-					success: function(data) {													
-						$('#iframePage #content').html(data);
-					},		
-			        error: function( jqXHR, textStatus, errorThrown){						
-						//alert(textStatus);
-						//alert(errorThrown);
-			        }
-			    });			
+		var iframeSrc = $(document).data('iframeSrc');		
+		var backHref = $(document).data('iframePageBackHref');
+		
+		$('#iframePageBack').attr('href', '#'+backHref);		
+		$('#iframePage #if').attr('src', iframeSrc);				
 	});
 	
-		$( document ).delegate("#setupPage", "pageinit", function() {
+	$( document ).delegate("#setupPage", "pageinit", function() {
 		var data = jlms.getData();		
 		jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: false}, function(dir) {
 			var html = '<form><div class="ui-grid-d">';			
@@ -455,23 +442,103 @@ $(document).ready( function() {
 			$('#loginPage-first #password').val('password');		
 		})		
 	});	
-	$(window).bind('scroll', function(){		
-	/*
-		var pos = $.mobile.window.scrollTop();
-		alert($.data($(document), 'lastscrollpos'));
-		if( $.data($(document), 'lastscrollpos') != undefined ) {
-			var lastPos = $.data($(document),'lastscrollpos');
+	$(window).bind('scroll', function(){			
+		var pos = $.mobile.window.scrollTop();		
+		if( $(document).data('lastscrollpos') != undefined ) {
+			var lastPos = $(document).data('lastscrollpos');
 		} else {
 			var lastPos = 0;
 		}
-		$.data($(document),'lastscrollpos', pos);		
+		$(document).data('lastscrollpos', pos);	
 		
-		alert(pos+" > "+lastPos);
-		*/
-		if ($.mobile.window.scrollTop() > ($.mobile.document.height() - $.mobile.window.height() - 30)){						
+		//if ($.mobile.window.scrollTop() > ($.mobile.document.height() - $.mobile.window.height() - 30)){						
+		if (pos+" > "+lastPos){
 			$('div[data-role="page"]').trigger('endofpage');
 		}
-	});	
+	});
+	$( document ).delegate("#coursesPage", "pageinit", function() {
+		function show() {
+			var access = jlms.access();
+			var page = $('#coursesPage');			
+			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
+				page.attr('requestsent', 1);				
+			} else {				
+				return false;
+			}			
+			var limitstart = page.attr('limitstart');			
+			$.ajax({
+				url: access.site+'/index.php?option=com_jlms_mobile&task=courses',
+				type: 'get',
+				dataType: 'html', 
+				data: {'limitstart': limitstart},
+				beforeSend: function (xhr){ 
+					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+				},
+				success: function(data) {						
+						var data = $.parseJSON(data);
+						if( data.length ) {
+							if( limitstart == 0 ) {
+								var content = '<ul id="courses-items-list" data-role="listview">';
+							} else {
+								var content = '';
+							}						
+							$(data).each( function(i, el) {
+								el.type = parseInt(el.type);
+								var hwId = 'course-'+el.id+'Page';
+								var status = 'Not Attempted';
+								if(parseInt(el.expired)) {
+									status = 'Expired';
+								} else {
+									if(el.passed) {
+										status = 'Completed';
+									} else {
+										status = 'In Progress';
+									}		
+								}
+								content += '<li><a class="courses-links" extlink="'+el.link+'" href="#">'+el.course_name+'('+status+')</a></li>';								
+							});							
+							if( limitstart == 0 ) {
+								content += '</ul>';
+							}							
+							if( limitstart == 0 ) {
+								$('#coursesPage #content').append(content).trigger('create');										
+							} else {
+								$('#courses-items-list').append(content).listview('refresh');							
+							}							
+							
+							var path = $.mobile.activePage[0].baseURI;							
+							var currPage = path.substr(path.lastIndexOf('/')+1);							
+							$(document).data('iframePageBackHref', currPage);
+							
+							$('#coursesPage .courses-links').on('click', function() {
+								var src = $(this).attr('extlink');
+								window.open(src, '_system');
+							/*								
+								$(document).data('iframeSrc', src);
+								$.mobile.changePage("iframe.html");								
+								*/
+							});							
+							limitstart = parseInt(limitstart)+parseInt(data.length);
+							page.attr('limitstart', limitstart);
+							page.attr('requestsent', 0);
+						}
+				},		
+				error: function( jqXHR, textStatus, errorThrown){						
+					//alert(textStatus);
+					//alert(errorThrown);
+				}
+			});
+		};		
+	
+		var page = $(this);		
+		page.bind('endofpage', function(){			
+			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
+				show();
+			}			
+		});		
+		page.attr('limitstart', 0);		
+		show();
+	});		
 	$( document ).delegate("#homeworkPage", "pageinit", function() {
 		function show() {
 			var access = jlms.access();
@@ -514,7 +581,7 @@ $(document).ready( function() {
 									pages += '		<textarea cols="40" rows="8" name="text-'+hwId+'" id="text-'+hwId+'" placeholder="Description" data-theme="c"></textarea>';							
 									break;
 									case 3:												
-									pages += '		<div>File:<span id="file-path-'+hwId+'" ></span></div>';
+									pages += '		<div><span id="file-path-'+hwId+'" ></span></div>';
 									pages += '		<button type="button" id="file-btn-'+hwId+'" data-icon="grid" data-theme="a">File</button>';
 									pages += '		<input type="file" value="" name="file-'+hwId+'" id="file-'+hwId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
 									break;
@@ -623,7 +690,7 @@ $(document).ready( function() {
 	});	
 	$( document ).delegate("#messagesPage", "pageinit", function() {
 		function show() {			
-			var access = jlms.access();
+			var access = jlms.access();			
 			var page = $('#messagesPage');			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
 				page.attr('requestsent', 1);				
@@ -640,7 +707,7 @@ $(document).ready( function() {
 					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 				},
 				success: function(data) {					
-					var data = $.parseJSON(data);										
+					var data = $.parseJSON(data);					
 					if( data.length ) {
 						if( limitstart == 0 ) {
 							var content = '<ul id="msg-items-list" data-role="listview">';
@@ -654,9 +721,13 @@ $(document).ready( function() {
 							pages += '	<div data-role="header"><a href="messages.html" data-icon="back">Back</a>';
 							pages += '		<h1>'+el.subject+'</h1>';
 							pages += '	<a href="#reply-panel-'+messId+'" data-icon="edit" >Reply</a>';
-							pages += '	</div>';
-							pages += '	<div data-role="content">'+el.message+'</div>';						
-							pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';						
+							pages += '	</div>';														
+							pages += '	<div data-role="content">';
+							if( el.filelink.length ) {
+								pages += '	<p align="left"><a class="message-file" href="'+el.filelink+'">'+el.filename+'('+el.filelink+')'+'</a></p>';
+							}
+							pages += el.message+'</div>';
+							pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';							
 							if(el.type == 'mb') {//for mailbox only
 								pages += '		<input id="subject-'+messId+'" name="subject-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Subject"/>';						
 								pages += '		<textarea cols="40" rows="8" name="text-'+messId+'" id="text-'+messId+'" placeholder="Text" data-theme="c"></textarea>';
@@ -664,14 +735,12 @@ $(document).ready( function() {
 								pages += '		<input id="name-'+messId+'" name="name-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Name"/>';						
 								pages += '		<textarea cols="40" rows="8" name="comment-'+messId+'" id="comment-'+messId+'" placeholder="Comment" data-theme="c"></textarea>';
 							}
-							pages += '		<div>File:<span id="file-path-'+messId+'" ></span></div>';						
+							pages += '		<div><span id="file-path-'+messId+'" ></span></div>';						
 							pages += '		<button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button>';						
 							pages += '		<button type="submit" id="send-'+messId+'" data-theme="b" style="margin-top: 2px;">Send</button>';						
 							pages += '		<input type="file" value="" name="file-'+messId+'" id="file-'+messId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
-							pages += '</div>';
-							if(el.type == 'db') {//for mailbox only
-								pages += '	<div data-role="footer" data-position="fixed"><a href="'+access.site+'/'+el.filelink+'">'+el.name+'</a></div>';							
-							}
+							pages += '</div>';							
+							pages += '	<div data-role="footer" data-position="fixed"></div>';							
 							pages += '</div>';						
 							content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';						
 							$(pages).appendTo( document.body );											
@@ -778,7 +847,14 @@ $(document).ready( function() {
 							$('#messagesPage #content').append(content).trigger('create');
 						} else {
 							$('#msg-items-list').append(content).listview('refresh');							
-						}						
+						}
+						/*
+						$('.message-file').on('click', function(){
+							var src = $(this).attr('href');							
+							window.open(src, '_system');
+							event.stopPropagation();
+						});
+						*/
 						limitstart = parseInt(limitstart)+parseInt(data.length);
 						page.attr('limitstart', limitstart);
 						page.attr('requestsent', 0);
