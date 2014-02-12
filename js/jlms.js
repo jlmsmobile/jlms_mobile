@@ -456,6 +456,79 @@ $(document).ready( function() {
 			$('div[data-role="page"]').trigger('endofpage');
 		}
 	});
+	$( document ).delegate("#announcePage", "pageinit", function() {
+		function show() {
+			var access = jlms.access();
+			var page = $('#announcePage');			
+			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
+				page.attr('requestsent', 1);				
+			} else {				
+				return false;
+			}			
+			var limitstart = page.attr('limitstart');			
+			$.ajax({
+				url: access.site+'/index.php?option=com_jlms_mobile&task=announcements',
+				type: 'get',
+				dataType: 'html', 
+				data: {'limitstart': limitstart},
+				beforeSend: function (xhr){ 
+					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+				},
+				success: function(data) {						
+						var data = $.parseJSON(data);
+						var items = data.items;
+						if( !data.isLimit && items.length ) {
+							if( limitstart == 0 ) {
+								var content = '<ul id="announce-items-list" data-role="listview">';
+							} else {
+								var content = '';
+							}								
+							$(items).each( function(i, el) {								
+								var annId = 'ann-'+el.id+'Page';
+								var pages = '';												
+								pages += '<div data-role="page" id="'+annId+'">';
+								pages += '	<div data-role="header"><a href="announcements.html" data-icon="back">Back</a>';
+								pages += '		<h1>'+el.title+'</h1>';								
+								pages += '	</div>';
+								pages += '	<div data-role="content">'
+								pages += '	<div>Start date:'+el.start_date+'</div>';
+								pages += '	<div>End date:'+el.end_date+'</div>';
+								pages += el.content
+								pages += '	</div>';
+								pages += '</div>';						
+								$(pages).appendTo( document.body );		
+								content += '<li><a href="#'+annId+'">'+el.title+'</a></li>';
+							});							
+							if( limitstart == 0 ) {
+								content += '</ul>';
+							}							
+							if( limitstart == 0 ) {
+								$('#announcePage #content').append(content).trigger('create');										
+							} else {
+								$('#announce-items-list').append(content).listview('refresh');							
+							}							
+							
+							limitstart = parseInt(limitstart)+parseInt(items.length);
+							page.attr('limitstart', limitstart);
+							page.attr('requestsent', 0);
+						}
+				},		
+				error: function( jqXHR, textStatus, errorThrown){						
+					//alert(textStatus);
+					//alert(errorThrown);
+				}
+			});
+		};		
+	
+		var page = $(this);		
+		page.bind('endofpage', function(){			
+			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
+				show();
+			}			
+		});		
+		page.attr('limitstart', 0);		
+		show();
+	});
 	$( document ).delegate("#coursesPage", "pageinit", function() {
 		function show() {
 			var access = jlms.access();
@@ -476,15 +549,14 @@ $(document).ready( function() {
 				},
 				success: function(data) {						
 						var data = $.parseJSON(data);
-						if( data.length ) {
+						var items = data.items;
+						if( !data.isLimit && items.length ) {
 							if( limitstart == 0 ) {
 								var content = '<ul id="courses-items-list" data-role="listview">';
 							} else {
 								var content = '';
 							}						
-							$(data).each( function(i, el) {
-								el.type = parseInt(el.type);
-								var hwId = 'course-'+el.id+'Page';
+							$(items).each( function(i, el) {								
 								var status = 'Not Attempted';
 								if(parseInt(el.expired)) {
 									status = 'Expired';
@@ -508,17 +580,9 @@ $(document).ready( function() {
 							
 							var path = $.mobile.activePage[0].baseURI;							
 							var currPage = path.substr(path.lastIndexOf('/')+1);							
-							$(document).data('iframePageBackHref', currPage);
+							$(document).data('iframePageBackHref', currPage);							
 							
-							$('#coursesPage .courses-links').on('click', function() {
-								var src = $(this).attr('extlink');
-								window.open(src, '_system');
-							/*								
-								$(document).data('iframeSrc', src);
-								$.mobile.changePage("iframe.html");								
-								*/
-							});							
-							limitstart = parseInt(limitstart)+parseInt(data.length);
+							limitstart = parseInt(limitstart)+parseInt(items.length);
 							page.attr('limitstart', limitstart);
 							page.attr('requestsent', 0);
 						}
@@ -559,13 +623,14 @@ $(document).ready( function() {
 				},
 				success: function(data) {					
 						var data = $.parseJSON(data);
-						if( data.length ) {
+						var items = data.items;
+						if( !data.isLimit && items.length ) {
 							if( limitstart == 0 ) {
 								var content = '<ul id="hw-items-list" data-role="listview">';
 							} else {
 								var content = '';
 							}						
-							$(data).each( function(i, el) {
+							$(items).each( function(i, el) {
 								el.type = parseInt(el.type);
 								var hwId = 'hw-'+el.id+'Page';
 								var pages = '';												
@@ -667,7 +732,7 @@ $(document).ready( function() {
 							} else {
 								$('#hw-items-list').append(content).listview('refresh');							
 							}						
-							limitstart = parseInt(limitstart)+parseInt(data.length);
+							limitstart = parseInt(limitstart)+parseInt(items.length);
 							page.attr('limitstart', limitstart);
 							page.attr('requestsent', 0);
 						}
@@ -707,14 +772,15 @@ $(document).ready( function() {
 					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 				},
 				success: function(data) {					
-					var data = $.parseJSON(data);					
-					if( data.length ) {
+					var data = $.parseJSON(data);
+					var items = data.items;
+					if( !data.isLimit && items.length ) {
 						if( limitstart == 0 ) {
 							var content = '<ul id="msg-items-list" data-role="listview">';
 						} else {
 							var content = '';
 						}
-						$(data).each( function(i, el) {							
+						$(items).each( function(i, el) {							
 							var messId = 'message-'+el.type+'-'+el.id+'Page';
 							var pages = '';												
 							pages += '<div data-role="page" id="'+messId+'">';
@@ -855,7 +921,7 @@ $(document).ready( function() {
 							event.stopPropagation();
 						});
 						*/
-						limitstart = parseInt(limitstart)+parseInt(data.length);
+						limitstart = parseInt(limitstart)+parseInt(items.length);
 						page.attr('limitstart', limitstart);
 						page.attr('requestsent', 0);
 					}
