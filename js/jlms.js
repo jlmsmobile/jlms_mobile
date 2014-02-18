@@ -163,6 +163,9 @@ var jlms = {
 		reader.readAsText(file);
 	},	
     onDeviceReady: function() {		
+		window.requestFileSystem(LocalFileSystem.TEMPORARY, 0, function(fileSystemTmp){
+			jlms.fileSystemTmp = fileSystemTmp;
+		});
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, jlms.onFileSystemSuccess, jlms.failFile);		
     },
 	getData: function() {
@@ -634,97 +637,111 @@ $(document).ready( function() {
 							$(items).each( function(i, el) {
 								el.type = parseInt(el.type);
 								var hwId = 'hw-'+el.id+'Page';
-								var pages = '';												
-								pages += '<div data-role="page" id="'+hwId+'">';
-								pages += '	<div data-role="header"><a href="homework.html" data-icon="back">Back</a>';
-								pages += '		<h1>'+el.name+'</h1>';
-								pages += '	<a href="#reply-panel-'+hwId+'" data-icon="edit" >Reply</a>';
-								pages += '	</div>';
-								pages += '	<div data-role="content">'+el.desc+'</div>';						
-								pages += '<div data-role="panel" id="reply-panel-'+hwId+'" data-position="right" data-display="overlay" data-theme="b">';
-								switch(el.type){						
-									case 2:
-									pages += '		<textarea cols="40" rows="8" name="text-'+hwId+'" id="text-'+hwId+'" placeholder="Description" data-theme="c"></textarea>';							
-									break;
-									case 3:												
-									pages += '		<div><span id="file-path-'+hwId+'" ></span></div>';
-									pages += '		<button type="button" id="file-btn-'+hwId+'" data-icon="grid" data-theme="a">File</button>';
-									pages += '		<input type="file" value="" name="file-'+hwId+'" id="file-'+hwId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
-									break;
-								}																		
-								pages += '		<button type="submit" id="send-'+hwId+'" data-theme="b">Completed</button>';																		
-								pages += '</div>';						
-								pages += '</div>';						
-								content += '<li><a href="#'+hwId+'">'+el.name+'</a></li>';
-								$(pages).appendTo( document.body );											
-								$('#file-'+hwId).bind('change', function() {
-									var file = $('#file'+hwId).val();
-									$('#file-path-'+hwId).text(file.substr(file.lastIndexOf('/')+1)); 
-								});
-								$('#file-btn-'+hwId).bind('click', function(e){							
-									$('#file-'+hwId).trigger('click');							
-								});						
-								
-								$('#send-'+hwId).bind('click', function(){
-									if(el.type == 3){
-										//var file = $('#file'+hwId).val();
-										var file = jlms.consts.DIR_IMAGES+'/messages.png';
-										if( file.length ) {
-											jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
-												var options = new FileUploadOptions();
-												options.fileKey="file";
-												//options.fileName=file.substr(file.lastIndexOf('/')+1);
-												options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
-												//options.mimeType="text/plain";
-												options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
-												
-												var params = new Object();																				
-												params.id = el.id;
-												params.type = el.type;
-												params.completed = true;											
-												options.params = params;
-												
-												$.mobile.loading("show");											
-												var ft = new FileTransfer();																				
-												var action = access.site+jlms.consts.HW_POST;		
-												//ft.upload(file, action, function(r) {											
-												ft.upload(fileEntry.fullPath, action, function(r) {													
-													if(res = jlms.checkAlert(r.response)) {
-														alert(res);
-													} else {													
-														alert('Completed');
-													}
-													$.mobile.loading("hide");
-												}, function(error){ 
-														jlms.failFileTransfer(error);
-														$.mobile.loading("hide");
-												}, options, true);										
-											});
-										}
-									}else{
-										var canSend = true;
-										if(el.type == 2) {
-											var text = $('#text-'+messId).val();											
-											canSend = (text.length > 0);
-										}
-										if( canSend ) {
-											$.ajax({
-												type: "POST",
-												url: access.site+jlms.consts.HW_POST,
-												enctype: 'multipart/form-data',
-												data: {'write_text': text, 'id': el.id, 'type': el.type},
-												success: function (r) {													
-													if(res = jlms.checkAlert(r)) {
-														alert(res);
-													} else {
-														alert('Completed');
-													}			
-												}										
-											});
-										}
-									}
-								});						
+								if(!$('#'+hwId).length) {
+									var pages = '';
+									pages += '<div data-role="page" id="'+hwId+'">';
+									pages += '	<div data-role="header"><a href="homework.html" data-icon="back">Back</a>';
+									pages += '		<h1>'+el.name+'</h1>';
+									pages += '	<a href="#reply-panel-'+hwId+'" data-icon="edit" >Reply</a>';
+									pages += '	</div>';
+									pages += '	<div data-role="content">'+el.desc+'</div>';						
+									pages += '<div data-role="panel" id="reply-panel-'+hwId+'" data-position="right" data-display="overlay" data-theme="b">';
+									switch(el.type){						
+										case 2:
+										pages += '		<textarea cols="40" rows="8" name="text-'+hwId+'" id="text-'+hwId+'" placeholder="Description" data-theme="c"></textarea>';							
+										break;
+										case 3:												
+										pages += '		<div><span id="file-path-'+hwId+'" ></span></div>';
+										pages += '		<button type="button" id="file-btn-'+hwId+'" data-icon="grid" data-theme="a">File</button>';
+										pages += '		<input type="file" value="" name="file-'+hwId+'" id="file-'+hwId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
+										break;
+									}																		
+									pages += '		<button type="submit"  elid="'+el.id+'" eltype="'+el.type+'" prefix="'+hwId+'" class="send-msg-btn" id="send-'+hwId+'" data-theme="b">Completed</button>';																		
+									pages += '</div>';						
+									pages += '</div>';								
+									$(pages).appendTo( document.body );																			
+									$('#file-'+hwId).bind('change', function() {
+										var file = $('#file'+hwId).val();
+										$('#file-path-'+hwId).text(file.substr(file.lastIndexOf('/')+1)); 
+									});
+									$('#file-btn-'+hwId).bind('click', function(e){							
+										$('#file-'+hwId).trigger('click');							
+									});
+								}
+								content += '<li><a href="#'+hwId+'">'+el.name+'</a></li>';								
 							});
+							$('.send-msg-btn').off('click').on('click', function(){
+								var hwId = $(this).attr('prefix');
+								var elType = $(this).attr('eltype');
+								var elId = $(this).attr('elid');
+							
+								if(elType == 3){
+									//var file = $('#file'+hwId).val();
+									var file = jlms.consts.DIR_IMAGES+'/messages.png';
+									if( file.length ) {
+										jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
+											var options = new FileUploadOptions();
+											options.fileKey="file";
+											//options.fileName=file.substr(file.lastIndexOf('/')+1);
+											options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
+											//options.mimeType="text/plain";
+											options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
+											
+											var params = new Object();																				
+											params.id = elId;
+											params.type = elType;
+											params.completed = true;											
+											options.params = params;
+											
+											$.mobile.loading("show");											
+											var ft = new FileTransfer();																				
+											var action = access.site+jlms.consts.HW_POST;		
+											//ft.upload(file, action, function(r) {											
+											ft.upload(fileEntry.fullPath, action, function(r) {													
+												if(res = jlms.checkAlert(r.response)) {
+													alert(res);
+												} else {													
+													alert('Completed');
+												}
+												$.mobile.loading("hide");
+											}, function(error){ 
+													jlms.failFileTransfer(error);
+													$.mobile.loading("hide");
+											}, options, true);										
+										});
+									}
+								}else{									
+									var canSend = true;
+									if(elType == 2) {
+										var text = $('#text-'+hwId).val();											
+										canSend = (text.length > 0);
+									}									
+									if( canSend ) {										
+										$.ajax({
+											type: "POST",
+											url: access.site+jlms.consts.HW_POST,
+											enctype: 'multipart/form-data',
+											data: {'write_text': text, 'id': elId, 'type': elType},
+											beforeSend: function (xhr){ 
+												xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+											},
+											success: function (r) {												
+												if(res = jlms.checkAlert(r)) {
+													alert(res);
+												} else {
+													alert('Completed');
+												}			
+											},
+											/*
+											complete: function (r, status) {												
+												alert(status);
+												alert(r.responseText);
+											}
+											*/
+										});
+									}
+								}
+							});	
 							if( limitstart == 0 ) {
 								content += '</ul>';
 							}
@@ -803,10 +820,10 @@ $(document).ready( function() {
 						} else {
 							var content = '';
 						}
-						var newEls = false;
+						var newEls = false;						
 						$(items).each( function(i, el) {							
-							var messId = 'message-'+el.type+'-'+el.id+'Page';
-							if($('#message-'+el.type+'-'+el.id+'Page').length) {
+							var messId = 'message-'+el.type+'-'+el.id+'Page';							
+							if(!$('#'+messId).length) {
 								var pages = '';
 								pages += '<div class="subPages" data-role="page" id="'+messId+'">';
 								pages += '	<div data-role="header"><a href="messages.html" data-icon="back">Back</a>';
@@ -821,7 +838,7 @@ $(document).ready( function() {
 								pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';							
 								if(el.type == 'mb') {//for mailbox only
 									pages += '		<input id="subject-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Subject"/>';						
-									pages += '		<textarea class="t-text" cols="40" rows="8" id="text-'+messId+'" placeholder="Text" data-theme="c"></textarea>';
+									pages += '		<textarea cols="40" rows="8" id="text-'+messId+'" placeholder="Text" data-theme="c"></textarea>';
 								} else {
 									pages += '		<input id="name-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Name"/>';						
 									pages += '		<textarea cols="40" rows="8" id="comment-'+messId+'" placeholder="Comment" data-theme="c"></textarea>';
@@ -842,23 +859,24 @@ $(document).ready( function() {
 									$('#file-'+messId).trigger('click');							
 								});
 							}
-							content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';
-							/*
-							$('.attached-file').bind('click', function(e){
-								var href = $(this).attr('href');								
-								alert(href);
+							content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';											
+						});
+						
+						$('.attached-file').off('click').on('click', function(e){
+							var href = $(this).attr('href');
+							var fileName = $(this).text();
+							
+							e.stopPropagation();
+							jlms.fileSystemTmp.root.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {						
 								var ft = new FileTransfer();
-								jlms.consts.FILE_NAME_CONFIG
-								ft.download(encodeURI(href), fileEntryTmp.fullPath, function(){
-								fileEntryTmp.file(function(fileTmp) {										
-								var reader1 = new FileReader();									
-								e.stopPropagation();								
-							});	
-							*/							
-						});					
+								ft.download(encodeURI(href), fileEntry.fullPath, function(fileEntry1){
+									var localURI = fileEntry1.toURI();									
+									window.open(localURI, '_blank');
+								});
+							});								
+						});	
 
-						$('.send-msg-btn').on('click', function(){						
-							$(this).off('click');
+						$('.send-msg-btn').off('click').on('click', function(){							
 							var messId = $(this).attr('prefix');
 							var elType = $(this).attr('eltype');
 							var elId = $(this).attr('elid');							
@@ -928,6 +946,9 @@ $(document).ready( function() {
 											url: access.site+jlms.consts.MESSAGE_POST,
 											enctype: 'multipart/form-data',
 											data: {'message': text, 'id': elId, 'type': elType},
+											beforeSend: function (xhr){ 
+												xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+											},
 											success: function (r) {
 												if(res = jlms.checkAlert(r)) {
 														alert(res);
