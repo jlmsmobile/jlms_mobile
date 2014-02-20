@@ -332,6 +332,21 @@ var jlms = {
 		var re = /alert\([',"](.*)[',"]\)/i
 		var found = str.match(re);
 		return (found != null && found[1] != undefined && found[1].length > 0);
+	},
+	bindOpenFileEvent: function(sel){		
+		$(sel).off('click').on('click', function(e){		
+		var href = $(this).attr('href');
+		var fileName = $(this).attr('filename');		
+		
+		e.stopPropagation();
+		jlms.fileSystemTmp.root.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {						
+			var ft = new FileTransfer();
+			ft.download(encodeURI(href), fileEntry.fullPath, function(fileEntry1){
+				var localURI = fileEntry1.toURI();									
+				window.open(localURI, '_blank');
+			});
+		});								
+	});	
 	}
 };
 
@@ -339,8 +354,11 @@ document.addEventListener("deviceready", jlms.onDeviceReady, false);
 
 $(document).ready( function() {	
 	$.support.cors = true;
-	$.mobile.allowCrossDomainPages = true;												
-	$( document ).delegate("#dashboardPage", "pageinit", function() {		
+	$.mobile.allowCrossDomainPages = true;
+	$.mobile.allowCrossDomainPages = true;
+	//$.mobile.defaultPageTransition = "none";
+
+	$( document ).delegate("#dashboardPage", "pageinit", function() {
 		var data = jlms.getData();
 		jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: false}, function(dir) {
 			var html = '<ul data-role="listview">';	
@@ -367,7 +385,7 @@ $(document).ready( function() {
 		
 		$('.exit-btn').click(function() {
 			navigator.app.exitApp();
-		})
+		})		
 	});
 	
 	$( document ).delegate("#iframePage", "pageinit", function() {			
@@ -534,6 +552,71 @@ $(document).ready( function() {
 		});		
 		page.attr('limitstart', 0);	
 	});
+	$( document ).delegate("#certificatesPage", "pageinit", function() {
+		function show() {
+			var access = jlms.access();
+			var page = $('#certificatesPage');			
+			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
+				page.attr('requestsent', 1);				
+			} else {				
+				return false;
+			}			
+			var limitstart = page.attr('limitstart');			
+			$.ajax({
+				url: access.site+'/index.php?option=com_jlms_mobile&task=certificates',
+				type: 'get',
+				dataType: 'html', 
+				data: {'limitstart': limitstart},
+				beforeSend: function (xhr){ 
+					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+				},
+				success: function(data) {						
+						var data = $.parseJSON(data);
+						var items = data.items;
+						if( !data.isLimit && items.length ) {
+							if( limitstart == 0 ) {
+								var content = '<ul id="certs-items-list" data-role="listview">';
+							} else {
+								var content = '';
+							}						
+							$(items).each( function(i, el) {								
+								content += '<li><a class="certs-link" filename="cert'+el.type+el.id+'.png" href="'+el.link+'">'+el.title+'</a></li>';								
+							});							
+							if( limitstart == 0 ) {
+								content += '</ul>';
+							}							
+							if( limitstart == 0 ) {
+								$('#certificatesPage #content').append(content).trigger('create');										
+							} else {
+								$('#certs-items-list').append(content).listview('refresh');							
+							}	
+							jlms.bindOpenFileEvent('.certs-link');							
+							/*
+							var path = $.mobile.activePage[0].baseURI;							
+							var currPage = path.substr(path.lastIndexOf('/')+1);							
+							$(document).data('iframePageBackHref', currPage);
+							*/
+							
+							limitstart = parseInt(limitstart)+parseInt(items.length);
+							page.attr('limitstart', limitstart);
+							page.attr('requestsent', 0);
+						}
+				},		
+				error: function( jqXHR, textStatus, errorThrown){						
+					//alert(textStatus);
+					//alert(errorThrown);
+				}
+			});
+		};		
+	
+		var page = $(this);		
+		page.bind('endofpage', function(){			
+			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
+				show();
+			}			
+		});		
+		page.attr('limitstart', 0);		
+	});	
 	$( document ).delegate("#coursesPage", "pageinit", function() {
 		function show() {
 			var access = jlms.access();
@@ -572,7 +655,7 @@ $(document).ready( function() {
 										status = 'In Progress';
 									}		
 								}
-								content += '<li><a class="courses-links" extlink="'+el.link+'" href="#">'+el.course_name+'('+status+')</a></li>';								
+								content += '<li><a class="courses-link" extlink="'+el.link+'" href="#">'+el.course_name+'('+status+')</a></li>';								
 							});							
 							if( limitstart == 0 ) {
 								content += '</ul>';
@@ -582,10 +665,11 @@ $(document).ready( function() {
 							} else {
 								$('#courses-items-list').append(content).listview('refresh');							
 							}							
-							
+							/*
 							var path = $.mobile.activePage[0].baseURI;							
 							var currPage = path.substr(path.lastIndexOf('/')+1);							
-							$(document).data('iframePageBackHref', currPage);							
+							$(document).data('iframePageBackHref', currPage);
+							*/
 							
 							limitstart = parseInt(limitstart)+parseInt(items.length);
 							page.attr('limitstart', limitstart);
@@ -607,7 +691,7 @@ $(document).ready( function() {
 		});		
 		page.attr('limitstart', 0);		
 	});		
-	$( document ).delegate("#homeworkPage", "pageinit", function() {
+	$( document ).delegate("#homeworkPage", "pageinit", function() {		
 		function show() {
 			var access = jlms.access();
 			var page = $('#homeworkPage');			
@@ -832,7 +916,7 @@ $(document).ready( function() {
 								pages += '	</div>';														
 								pages += '	<div data-role="content">';
 								if( el.filelink.length ) {
-									pages += '	<p align="left"><a class="attached-file" href="'+el.filelink+'">'+el.filename+'</a></p>';
+									pages += '	<p align="left"><a class="attached-file" filename="'+el.filename+'" href="'+el.filelink+'">'+el.filename+'</a></p>';
 								}
 								pages += el.message+'</div>';
 								pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';							
@@ -860,23 +944,9 @@ $(document).ready( function() {
 								});
 							}
 							content += '<li><a href="#'+messId+'">'+el.subject+'</a></li>';											
-						});
-						
-						$('.attached-file').off('click').on('click', function(e){
-							var href = $(this).attr('href');
-							var fileName = $(this).text();
-							
-							e.stopPropagation();
-							jlms.fileSystemTmp.root.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {						
-								var ft = new FileTransfer();
-								ft.download(encodeURI(href), fileEntry.fullPath, function(fileEntry1){
-									var localURI = fileEntry1.toURI();									
-									window.open(localURI, '_blank');
-								});
-							});								
-						});	
+						});										
 
-						$('.send-msg-btn').off('click').on('click', function(){							
+						$('.send-msg-btn').off('click').on('click', function(){						
 							var messId = $(this).attr('prefix');
 							var elType = $(this).attr('eltype');
 							var elId = $(this).attr('elid');							
@@ -977,6 +1047,7 @@ $(document).ready( function() {
 						} else {
 							$.mobile.activePage.find('#msg-items-list').append(content).listview('refresh');							
 						}
+						jlms.bindOpenFileEvent('.attached-file');
 						/*
 						$('.message-file').on('click', function(){
 							var src = $(this).attr('href');							
