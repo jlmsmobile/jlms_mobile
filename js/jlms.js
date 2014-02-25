@@ -356,10 +356,101 @@ $(document).ready( function() {
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;
 	$.mobile.allowCrossDomainPages = true;
-	//$.mobile.defaultPageTransition = "none";
+	$.mobile.defaultPageTransition = "none";	
+/*
+	var testPageId = '#messagesPage';
+	$( document ).delegate(testPageId, "pageshow", function() {		
+		alert('pageshow');
+	})
+	$( document ).delegate(testPageId, "pageinit", function() {		
+		alert('pageinit');
+	})
+	$( document ).delegate(testPageId, "pagecreate", function() {		
+		alert('pagecreate');
+	})	
+	$( document ).delegate(testPageId, "pageremove", function() {		
+		alert('pageremove');
+	})
+	$( document ).delegate(testPageId, "pagehide", function() {		
+		alert('pagehide');
+	})
+	$( document ).delegate(testPageId, "pagechange", function() {		
+		alert('pagechange');
+	})
+*/
+	$( document ).delegate("#resourcesPage", "pagebeforeshow", function() {
+		function show() {
+			var access = jlms.access();
+			var page = $(this);			
+			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
+				page.attr('requestsent', 1);				
+			} else {				
+				return false;
+			}			
+			var limitstart = page.attr('limitstart');			
+			$.ajax({
+				url: access.site+'/index.php?option=com_jlms_mobile&task=resources',
+				type: 'get',
+				dataType: 'html', 
+				data: {'limitstart': limitstart},
+				beforeSend: function (xhr){ 
+					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+				},
+				success: function(data) {						
+						var data = $.parseJSON(data);
+						var items = data.items;
+						if( !data.isLimit && items.length ) {
+							if( limitstart == 0 ) {
+								var content = '<ul id="res-items-list" data-role="listview">';
+							} else {
+								var content = '';
+							}						
+							$(items).each( function(i, el) {
+								var isDir = (el.file_name == null)?true:false;
+								if( isDir ) {
+									content += '<li><a class="res-dir-link" href="#">'+el.doc_name+'</a></li>';								
+								} else {
+									content += '<li><a class="res-file-link" href="#" data-icon="false">'+el.doc_name+'</a></li>';
+								}
+							});							
+							if( limitstart == 0 ) {
+								content += '</ul>';
+							}							
+							if( limitstart == 0 ) {
+								$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
+							} else {
+								$.mobile.activePage.find('#res-items-list').append(content).listview('refresh');							
+							}						
+							/*
+							var path = $.mobile.activePage[0].baseURI;							
+							var currPage = path.substr(path.lastIndexOf('/')+1);							
+							$(document).data('iframePageBackHref', currPage);
+							*/
+							
+							limitstart = parseInt(limitstart)+parseInt(items.length);
+							page.attr('limitstart', limitstart);
+							page.attr('requestsent', 0);
+						}
+				},		
+				error: function( jqXHR, textStatus, errorThrown){						
+					//alert(textStatus);
+					//alert(errorThrown);
+				}
+			});
+		};		
+	
+		var page = $(this);		
+		page.bind('endofpage', function(){			
+			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
+				show();
+			}			
+		});		
+		page.attr('limitstart', 0);
+		show();		
+	});	
 
-	$( document ).delegate("#dashboardPage", "pageinit", function() {
-		var data = jlms.getData();
+	$( document ).delegate("#dashboardPage", "pagebeforeshow", function(e, d) {		
+		var data = jlms.getData();		
 		jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: false}, function(dir) {
 			var html = '<ul data-role="listview">';	
 			$(data).each( function(i, el) {		
@@ -379,16 +470,17 @@ $(document).ready( function() {
 					html += '<li><a href="'+el.cmd+'.html" ><img src="'+src+'" class="ui-li-thumb" style="top: 19%;" /><span style="top: 36%; position: absolute; left:50px">'+el.name+'</span><span class="ui-li-count">'+rand+' new</span></a></li>';															
 				}
 			});		
-			html += '</ul>';			
-			$('#dashboardPage #content').append(html).trigger('create');			
-		}, jlms.failFile );
+			html += '</ul>';						
+			$.mobile.activePage.find('[data-role=content]').append(html).trigger('create');			
+			
+		}, jlms.failFile );			
 		
 		$('.exit-btn').click(function() {
 			navigator.app.exitApp();
 		})		
 	});
 	
-	$( document ).delegate("#iframePage", "pageinit", function() {			
+	$( document ).delegate("#iframePage", "pagebeforeshow", function() {			
 		var iframeSrc = $(document).data('iframeSrc');		
 		var backHref = $(document).data('iframePageBackHref');
 		
@@ -396,7 +488,7 @@ $(document).ready( function() {
 		$('#iframePage #if').attr('src', iframeSrc);				
 	});
 	
-	$( document ).delegate("#setupPage", "pageinit", function() {
+	$( document ).delegate("#setupPage", "pagebeforeshow", function() {
 		var data = jlms.getData();		
 		jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: false}, function(dir) {
 			var html = '<form><div class="ui-grid-d">';			
@@ -405,9 +497,10 @@ $(document).ready( function() {
 				html += '<div class="ui-block-b" style="width: 45%;">'+el.name+'</div>';
 				html += '<div class="ui-block-d"><select class="flips" name="flip-'+i+'" id="flip-'+i+'" data-role="slider" data-mini="true"><option '+(el.value =='off'?'selected':'')+' value="off">Off</option><option '+(el.value=='on'?'selected':'')+' value="on">On</option></select></div>';				
 			});				
-			html += '</div></form>';						
-			$('#setupPage #content').append(html).trigger( "create" );					
-						
+			html += '</div></form>';									
+			
+			$.mobile.activePage.find('[data-role=content]').append(html).trigger('create');
+			
 			$('#setupPage #save-btn').click(function(){			
 				var text = '{"options":[';			
 				$('#setupPage select').each( function( i, el) {
@@ -430,7 +523,7 @@ $(document).ready( function() {
 		}, jlms.failFile );
 	});			
 		
-	$( document ).delegate("#loginPage", "pageinit", function() {	
+	$( document ).delegate("#loginPage", "pagebeforeshow", function() {	
 		var access = jlms.access();
 					
 		$('#loginPage #site').val(access.site);
@@ -446,7 +539,7 @@ $(document).ready( function() {
 		})		
 	});	
 	
-	$( document ).delegate("#loginPage-first", "pageinit", function() {						
+	$( document ).delegate("#loginPage-first", "pagebeforeshow", function() {						
 		$('#loginPage-first #save-btn').click(function() {			
 			var site = $('#loginPage-first #site').val();
 			var name = $('#loginPage-first #name').val();
@@ -478,10 +571,10 @@ $(document).ready( function() {
 			$('div[data-role="page"]').trigger('endofpage');
 		}
 	});
-	$( document ).delegate("#announcePage", "pageinit", function() {	
+	$( document ).delegate("#announcePage", "pagebeforeshow", function() {	
 		function show() {
 			var access = jlms.access();
-			var page = $('#announcePage');			
+			var page = $(this);
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
 				page.attr('requestsent', 1);				
 			} else {				
@@ -527,10 +620,10 @@ $(document).ready( function() {
 								content += '</ul>';
 							}							
 							if( limitstart == 0 ) {
-								$('#announcePage #content').append(content).trigger('create');										
+								$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
 							} else {
-								$('#announce-items-list').append(content).listview('refresh');							
-							}							
+								$.mobile.activePage.find('#announce-items-list').append(content).listview('refresh');							
+							}						
 							
 							limitstart = parseInt(limitstart)+parseInt(items.length);
 							page.attr('limitstart', limitstart);
@@ -551,11 +644,12 @@ $(document).ready( function() {
 			}			
 		});		
 		page.attr('limitstart', 0);	
+		show();
 	});
-	$( document ).delegate("#certificatesPage", "pageinit", function() {
+	$( document ).delegate("#certificatesPage", "pagebeforeshow", function() {
 		function show() {
 			var access = jlms.access();
-			var page = $('#certificatesPage');			
+			var page = $(this);
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
 			} else {				
@@ -586,10 +680,10 @@ $(document).ready( function() {
 								content += '</ul>';
 							}							
 							if( limitstart == 0 ) {
-								$('#certificatesPage #content').append(content).trigger('create');										
+								$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
 							} else {
-								$('#certs-items-list').append(content).listview('refresh');							
-							}	
+								$.mobile.activePage.find('#certs-items-list').append(content).listview('refresh');							
+							}						
 							jlms.bindOpenFileEvent('.certs-link');							
 							/*
 							var path = $.mobile.activePage[0].baseURI;							
@@ -615,12 +709,13 @@ $(document).ready( function() {
 				show();
 			}			
 		});		
-		page.attr('limitstart', 0);		
+		page.attr('limitstart', 0);
+		show();
 	});	
-	$( document ).delegate("#coursesPage", "pageinit", function() {
+	$( document ).delegate("#coursesPage", "pagebeforeshow", function() {
 		function show() {
 			var access = jlms.access();
-			var page = $('#coursesPage');			
+			var page = $(this);
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
 			} else {				
@@ -661,10 +756,10 @@ $(document).ready( function() {
 								content += '</ul>';
 							}							
 							if( limitstart == 0 ) {
-								$('#coursesPage #content').append(content).trigger('create');										
+								$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
 							} else {
-								$('#courses-items-list').append(content).listview('refresh');							
-							}							
+								$.mobile.activePage.find('#courses-items-list').append(content).listview('refresh');							
+							}						
 							/*
 							var path = $.mobile.activePage[0].baseURI;							
 							var currPage = path.substr(path.lastIndexOf('/')+1);							
@@ -689,12 +784,13 @@ $(document).ready( function() {
 				show();
 			}			
 		});		
-		page.attr('limitstart', 0);		
+		page.attr('limitstart', 0);
+		show();		
 	});		
-	$( document ).delegate("#homeworkPage", "pageinit", function() {		
+	$( document ).delegate("#homeworkPage", "pagebeforeshow", function() {		
 		function show() {
 			var access = jlms.access();
-			var page = $('#homeworkPage');			
+			var page = $(this);
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
 				page.attr('requestsent', 1);				
 			} else {				
@@ -830,10 +926,10 @@ $(document).ready( function() {
 								content += '</ul>';
 							}
 							if( limitstart == 0 ) {
-								$('#homeworkPage #content').append(content).trigger('create');										
+								$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
 							} else {
-								$('#hw-items-list').append(content).listview('refresh');							
-							}						
+								$.mobile.activePage.find('#hw-items-list').append(content).listview('refresh');							
+							}												
 							limitstart = parseInt(limitstart)+parseInt(items.length);
 							page.attr('limitstart', limitstart);
 							page.attr('requestsent', 0);
@@ -853,6 +949,7 @@ $(document).ready( function() {
 			}			
 		});		
 		page.attr('limitstart', 0);		
+		show();
 	});	
 	/*
 	$( document ).delegate("#dashboardPage", "pageshow", function(e, data) {
@@ -863,10 +960,11 @@ $(document).ready( function() {
 		data['prevPage'].empty();
 	})
 	*/
-	$( document ).delegate("#messagesPage", "pageinit", function() {
+	$( document ).delegate("#messagesPage", "pagebeforeshow", function() {
+		var page = $(this);
 		var pageId = 'messagesPage';
 		var limitStartSel = pageId+'-limitstart';
-		var requestSentSel = 'requestsent';	
+		var requestSentSel = 'requestsent';			
 		/*
 		var msg  = 'messagesPage: '+$('#messagesPage').length;
 		msg  += "\n messagesContnt: "+$('#messagesPage #messagesContent').length;
@@ -876,8 +974,8 @@ $(document).ready( function() {
 		}).get().join("\n");		
 		
 		alert(msg);
-		*/
-		function show() {		
+		*/		
+		function show() {
 			var access = jlms.access();			
 			var config = jlms.config();
 			
@@ -895,7 +993,7 @@ $(document).ready( function() {
 				beforeSend: function (xhr){ 
 					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 				},
-				success: function(data) {					
+				success: function(data) {
 					var data = $.parseJSON(data);
 					var items = data.items;
 					if( !data.isLimit && items.length ) {
@@ -905,7 +1003,7 @@ $(document).ready( function() {
 							var content = '';
 						}
 						var newEls = false;						
-						$(items).each( function(i, el) {							
+						$(items).each( function(i, el) {						
 							var messId = 'message-'+el.type+'-'+el.id+'Page';							
 							if(!$('#'+messId).length) {
 								var pages = '';
@@ -1075,7 +1173,8 @@ $(document).ready( function() {
 			}			
 		});		
 		
-		$(document).data(limitStartSel, 0);		
+		$(document).data(limitStartSel, 0);
+		show();
 	});	
 	
 	$( document ).delegate("#fileBrowserPage", "pageinit", function() {	
