@@ -336,14 +336,12 @@ var jlms = {
 	bindOpenFileEvent: function(sel){		
 		$(sel).off('click').on('click', function(e){
 			var href = $(this).attr('href');
-			var fileName = $(this).attr('filename');		
+			var fileName = $(this).attr('data-filename');		
 			
-			//e.stopPropagation();
-			e.preventDefault();		
-			alert(href);			
-			alert(encodeURI(href));
+			e.stopPropagation();
+			//e.preventDefault();			
 			jlms.fileSystemTmp.root.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {						
-				var ft = new FileTransfer();
+				var ft = new FileTransfer();				
 				ft.download(encodeURI(href), fileEntry.fullPath, function(fileEntry1){
 					var localURI = fileEntry1.toURI();									
 					window.open(localURI, '_blank');
@@ -384,8 +382,7 @@ $(document).ready( function() {
 	$( document ).delegate("#resourcesPage", "pagebeforeshow", function() {
 		var page = $('#resourcesPage');
 		page.data('history', []);
-		page.attr('data-parent', 0);
-		
+		page.attr('data-parent', 0);		
 		function show() {		
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
@@ -394,7 +391,7 @@ $(document).ready( function() {
 				return false;
 			}			
 			var limitstart = page.attr('limitstart');			
-			var parent = page.attr('data-parent');			
+			var parent = page.attr('data-parent');						
 			$.ajax({
 				url: access.site+'/index.php?option=com_jlms_mobile&task=resources',
 				type: 'get',
@@ -412,12 +409,12 @@ $(document).ready( function() {
 							} else {
 								var content = '';
 							}						
-							$(items).each( function(i, el) {
+							$(items).each( function(i, el) {								
 								var isDir = (el.file_name == null)?true:false;
-								if( isDir ) {
+								if( isDir ) {									
 									content += '<li><a class="res-dir-link" data-parent="'+el.id+'" href="">'+el.doc_name+'</a></li>';								
 								} else {
-									content += '<li data-icon="false"><a class="res-file-link" href="'+el.link+'">'+el.doc_name+'</a></li>';
+									content += '<li data-icon="false"><a class="res-file-link" href="'+el.link+'" data-filename="'+el.file_name+'">'+el.doc_name+'</a></li>';
 								}
 							});							
 							if( limitstart == 0 ) {
@@ -427,31 +424,7 @@ $(document).ready( function() {
 								page.find('[data-role=content]').append(content).trigger('create');
 							} else {
 								page.find('#res-items-list').append(content).listview('refresh');							
-							}
-							$('.res-dir-link').off('click').on('click', function(e){								
-								page.find('#res-items-list').remove();
-								//navigation								
-								var history = page.data('history');
-								history.push(page.attr('data-parent'));
-								page.data('history', history);								
-								//navigation
-								page.attr('data-parent', $(this).attr('data-parent'));
-								page.attr('limitstart', 0);								
-								show();								
-							});
-							$('#res-back-btn').off('click').on('click', function(e){								
-								page.find('#res-items-list').remove();								
-								//navigation
-								if(page.data('history').length != 0) {									
-									e.preventDefault();
-								}
-								var prevPageParentId = page.data('history').pop();
-								page.attr('data-parent', prevPageParentId);								
-								//navigation								
-								page.attr('limitstart', 0);
-								/* if root folder */								
-								show();								
-							});
+							}							
 							jlms.bindOpenFileEvent('.res-file-link');							
 							/*
 							var path = $.mobile.activePage[0].baseURI;							
@@ -460,9 +433,20 @@ $(document).ready( function() {
 							*/
 							
 							limitstart = parseInt(limitstart)+parseInt(items.length);
-							page.attr('limitstart', limitstart);
-							page.attr('requestsent', 0);
+							page.attr('limitstart', limitstart);							
 						}
+						page.attr('requestsent', 0);
+						$('.res-dir-link').off('click').on('click', function(e){							
+							page.find('#res-items-list').remove();
+							//navigation								
+							var history = page.data('history');
+							history.push(page.attr('data-parent'));								
+							page.data('history', history);
+							//navigation								
+							page.attr('data-parent', $(this).attr('data-parent'));
+							page.attr('limitstart', 0);
+							show();		
+						});					
 				},		
 				error: function( jqXHR, textStatus, errorThrown){						
 					//alert(textStatus);
@@ -470,6 +454,20 @@ $(document).ready( function() {
 				}
 			});
 		};		
+		
+		$('#res-back-btn').off('click').on('click', function(e){								
+			page.find('#res-items-list').remove();								
+			//navigation
+			if(page.data('history').length != 0) {									
+				e.preventDefault();
+			}
+			var prevPageParentId = page.data('history').pop();								
+			page.attr('data-parent', prevPageParentId);
+			//navigation								
+			page.attr('limitstart', 0);
+			/* if root folder */			
+			show();								
+		});
 
 		page.bind('endofpage', function(){
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
@@ -704,7 +702,7 @@ $(document).ready( function() {
 								var content = '';
 							}						
 							$(items).each( function(i, el) {								
-								content += '<li><a class="certs-link" filename="cert'+el.type+el.id+'.png" href="'+el.link+'">'+el.title+'</a></li>';								
+								content += '<li><a class="certs-link" data-filename="cert'+el.type+el.id+'.png" href="'+el.link+'">'+el.title+'</a></li>';								
 							});							
 							if( limitstart == 0 ) {
 								content += '</ul>';
@@ -1042,7 +1040,7 @@ $(document).ready( function() {
 								pages += '	</div>';														
 								pages += '	<div data-role="content">';
 								if( el.filelink.length ) {
-									pages += '	<p align="left"><a class="attached-file" filename="'+el.filename+'" href="'+el.filelink+'">'+el.filename+'</a></p>';
+									pages += '	<p align="left"><a class="attached-file" data-filename="'+el.filename+'" href="'+el.filelink+'">'+el.filename+'</a></p>';
 								}
 								pages += el.message+'</div>';
 								pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';							
