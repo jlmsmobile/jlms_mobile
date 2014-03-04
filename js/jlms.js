@@ -3,6 +3,7 @@ var jlms = {
 	fileSystem: null,
 	dbCounter: 0,
 	instances: [],
+	courseslist: [],
 	consts: {
 		AUTH_PAGE: 'index.php?option=com_jlms_mobile&task=checkaccess',
 		MESSAGE_POST: 'index.php?option=com_jlms_mobile&task=sendmessage',
@@ -78,7 +79,23 @@ var jlms = {
 			beforeSend: function (xhr){ 
 				xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 			},
-			success: function(data) {				
+			success: function(data) {
+				$.ajax({
+					url: access.site+'/index.php?option=com_jlms_mobile&task=courseslist',
+					type: 'get',
+					dataType: 'html',				
+					beforeSend: function (xhr){ 
+						xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+					},
+					success: function(d) {		
+							var d = $.parseJSON(d);
+							jlms.courseslist.items = d.items;							
+					},		
+					error: function( jqXHR, textStatus, errorThrown){						
+						//alert(textStatus);
+						//alert(errorThrown);
+					}
+				});
 				jlms.fileSystem.root.getFile(jlms.consts.FILE_NAME_USERSETUP, {create: false, exclusive: true}, function(fileEntry) {															
 					fileEntry.file(function(file) {							
 							var reader = new FileReader();				
@@ -383,7 +400,7 @@ $(document).ready( function() {
 		var page = $('#resourcesPage');
 		page.data('history', []);
 		page.attr('data-parent', 0);		
-		function show() {		
+		function show() {	
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
@@ -391,16 +408,18 @@ $(document).ready( function() {
 				return false;
 			}			
 			var limitstart = page.attr('limitstart');			
-			var parent = page.attr('data-parent');						
+			var parent = page.attr('data-parent');
+			var course = $('#res-courses-list').val();		
+			
 			$.ajax({
 				url: access.site+'/index.php?option=com_jlms_mobile&task=resources',
 				type: 'get',
 				dataType: 'html', 
-				data: {'limitstart': limitstart, 'parent':parent},
+				data: {'limitstart': limitstart, 'parent':parent, 'course': course},
 				beforeSend: function (xhr){ 
 					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 				},
-				success: function(data) {						
+				success: function(data) {
 						var data = $.parseJSON(data);
 						var items = data.items;
 						if( !data.isLimit && items.length ) {
@@ -408,13 +427,17 @@ $(document).ready( function() {
 								var content = '<ul id="res-items-list" data-role="listview">';
 							} else {
 								var content = '';
-							}						
+							}
 							$(items).each( function(i, el) {								
-								var isDir = (el.file_name == null)?true:false;
-								if( isDir ) {									
-									content += '<li><a class="res-dir-link" data-parent="'+el.id+'" href="">'+el.doc_name+'</a></li>';								
-								} else {
-									content += '<li data-icon="false"><a class="res-file-link" href="'+el.link+'" data-filename="'+el.file_name+'">'+el.doc_name+'</a></li>';
+								switch(el.type) {
+									case '1': //link
+										content += '<li data-icon="false"><a class="" href="'+el.link+'">'+el.title+'</a></li>';
+									break;
+									case '2': //file
+										content += '<li data-icon="false"><a class="res-file-link" href="'+el.link+'" data-filename="'+el.file_name+'">'+el.title+'</a></li>';
+									break;
+									case '3': //dir
+										content += '<li><a class="res-dir-link" data-parent="'+el.id+'" href="">'+el.title+'</a></li>';									
 								}
 							});							
 							if( limitstart == 0 ) {
@@ -468,7 +491,16 @@ $(document).ready( function() {
 			/* if root folder */			
 			show();								
 		});
-
+		
+		var options = [];			
+		$.each(jlms.courseslist.items, function(key, item)
+		{				
+			options.push('<option value="'+ item.id +'">'+ item.title +'</option>');
+		});
+		page.find('#res-courses-list').append(options.join(''));
+		page.on('change', function(){
+			show();
+		});
 		page.bind('endofpage', function(){
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
 				show();

@@ -11,9 +11,14 @@
 </head> 
 <body>
 <div data-role="page" id="resourcesPage">	
-<div data-role="header" data-position="fixed">	
-	<a href="dashboard.html" data-icon="back" id="res-back-btn">Back</a>
+	<div data-role="header" data-position="fixed">	
+		<a href="dashboard.html" data-icon="back" id="res-back-btn">Back</a>
 		<h1>Resources</h1>	
+		<div data-role="fieldcontain">    
+			<select name="select-native-2" id="res-courses-list" data-mini="true">
+				<option value="0" selected="selected">Select Course</option>				
+			</select>
+		</div>
 	</div>
 	<div id="content" data-role="content">	
 	</div><!-- /content -->		
