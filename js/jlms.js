@@ -419,24 +419,24 @@ $(document).ready( function() {
 				beforeSend: function (xhr){ 
 					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 				},
-				success: function(data) {
+				success: function(data) {						
 						var data = $.parseJSON(data);
-						var items = data.items;
+						var items = data.items;						
 						if( !data.isLimit && items.length ) {
 							if( limitstart == 0 ) {
 								var content = '<ul id="res-items-list" data-role="listview">';
 							} else {
 								var content = '';
-							}
+							}							
 							$(items).each( function(i, el) {								
 								switch(el.type) {
-									case '1': //link
+									case 1: //link
 										content += '<li data-icon="false"><a class="" href="'+el.link+'">'+el.title+'</a></li>';
 									break;
-									case '2': //file
+									case 2: //file
 										content += '<li data-icon="false"><a class="res-file-link" href="'+el.link+'" data-filename="'+el.file_name+'">'+el.title+'</a></li>';
 									break;
-									case '3': //dir
+									case 3: //dir
 										content += '<li><a class="res-dir-link" data-parent="'+el.id+'" href="">'+el.title+'</a></li>';									
 								}
 							});							
@@ -498,7 +498,7 @@ $(document).ready( function() {
 			options.push('<option value="'+ item.id +'">'+ item.title +'</option>');
 		});
 		page.find('#res-courses-list').append(options.join(''));
-		page.on('change', function(){
+		page.find('#res-courses-list').on('change', function(){
 			show();
 		});
 		page.bind('endofpage', function(){
