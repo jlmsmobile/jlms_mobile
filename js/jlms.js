@@ -562,7 +562,7 @@ $(document).ready( function() {
 	$( document ).delegate("#iframePage", "pagebeforeshow", function() {			
 		var iframeSrc = $(document).data('iframeSrc');		
 		var backHref = $(document).data('iframePageBackHref');
-		$(this).find('#iframePageBack').attr('href', '#'+backHref);		
+		//$(this).find('#iframePageBack').attr('href', '#'+backHref);		
 		$(this).find('#extcontent').attr('src', iframeSrc);	
 	});
 	
