@@ -353,7 +353,7 @@ var jlms = {
 	bindOpenFileEvent: function(sel){		
 		$(sel).off('click').on('click', function(e){
 			var href = $(this).attr('href');
-			var fileName = $(this).attr('data-filename');		
+			var fileName = $(this).attr('data-filename');
 			
 			e.stopPropagation();
 			//e.preventDefault();			
@@ -364,6 +364,16 @@ var jlms = {
 					window.open(localURI, '_blank');
 				});
 			});								
+		});	
+	},
+	bindOpenExtLinkEvent: function(sel, backHref){		
+		$(sel).off('click').on('click', function(e){
+			var href = $(this).attr('href');
+			$(document).data('iframeSrc', href);
+			e.preventDefault();
+			$(document).data('iframePageBackHref', backHref);
+			$.mobile.changePage( "iframe.html" );
+			//window.open(href, '_system');							
 		});	
 	}
 };
@@ -400,7 +410,8 @@ $(document).ready( function() {
 		var page = $('#resourcesPage');
 		page.data('history', []);
 		page.attr('data-parent', 0);		
-		function show() {	
+		function show() {
+			$.mobile.loading("show");
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
@@ -428,10 +439,10 @@ $(document).ready( function() {
 							} else {
 								var content = '';
 							}							
-							$(items).each( function(i, el) {								
+							$(items).each( function(i, el) {
 								switch(el.type) {
 									case 1: //link
-										content += '<li data-icon="false"><a class="" href="'+el.link+'">'+el.title+'</a></li>';
+										content += '<li data-icon="false"><a class="res-ext-link" href="'+el.link+'">'+el.title+'</a></li>';
 									break;
 									case 2: //file
 										content += '<li data-icon="false"><a class="res-file-link" href="'+el.link+'" data-filename="'+el.file_name+'">'+el.title+'</a></li>';
@@ -448,7 +459,9 @@ $(document).ready( function() {
 							} else {
 								page.find('#res-items-list').append(content).listview('refresh');							
 							}							
-							jlms.bindOpenFileEvent('.res-file-link');							
+							jlms.bindOpenFileEvent('.res-file-link');
+							jlms.bindOpenExtLinkEvent('.res-ext-link', page.attr('id'));							
+							
 							/*
 							var path = $.mobile.activePage[0].baseURI;							
 							var currPage = path.substr(path.lastIndexOf('/')+1);							
@@ -469,9 +482,11 @@ $(document).ready( function() {
 							page.attr('data-parent', $(this).attr('data-parent'));
 							page.attr('limitstart', 0);
 							show();		
-						});					
+						});		
+					$.mobile.loading("hide");						
 				},		
-				error: function( jqXHR, textStatus, errorThrown){						
+				error: function( jqXHR, textStatus, errorThrown){	
+					$.mobile.loading("hide");				
 					//alert(textStatus);
 					//alert(errorThrown);
 				}
@@ -499,8 +514,11 @@ $(document).ready( function() {
 		});
 		page.find('#res-courses-list').append(options.join(''));
 		page.find('#res-courses-list').on('change', function(){
+			page.attr('data-parent', 0);
+			page.find('#res-items-list').remove();
+			page.attr('limitstart', 0);
 			show();
-		});
+		});		
 		page.bind('endofpage', function(){
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
 				show();
@@ -544,9 +562,8 @@ $(document).ready( function() {
 	$( document ).delegate("#iframePage", "pagebeforeshow", function() {			
 		var iframeSrc = $(document).data('iframeSrc');		
 		var backHref = $(document).data('iframePageBackHref');
-		
-		$('#iframePageBack').attr('href', '#'+backHref);		
-		$('#iframePage #if').attr('src', iframeSrc);				
+		$(this).find('#iframePageBack').attr('href', '#'+backHref);		
+		$(this).find('#extcontent').attr('src', iframeSrc);	
 	});
 	
 	$( document ).delegate("#setupPage", "pagebeforeshow", function() {
@@ -635,6 +652,7 @@ $(document).ready( function() {
 	$( document ).delegate("#announcePage", "pagebeforeshow", function() {
 		var page = $('#announcePage');
 		function show() {
+			$.mobile.loading("show");
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
 				page.attr('requestsent', 1);				
@@ -690,14 +708,15 @@ $(document).ready( function() {
 							page.attr('limitstart', limitstart);
 							page.attr('requestsent', 0);
 						}
+						$.mobile.loading("hide");
 				},		
-				error: function( jqXHR, textStatus, errorThrown){						
+				error: function( jqXHR, textStatus, errorThrown){	
+					$.mobile.loading("hide");
 					//alert(textStatus);
 					//alert(errorThrown);
 				}
 			});
 		};			
-		
 		page.bind('endofpage', function(){			
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
 				show();
@@ -709,6 +728,7 @@ $(document).ready( function() {
 	$( document ).delegate("#certificatesPage", "pagebeforeshow", function() {
 		var page = $('#certificatesPage');
 		function show() {
+			$.mobile.loading("show");
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
@@ -755,14 +775,15 @@ $(document).ready( function() {
 							page.attr('limitstart', limitstart);
 							page.attr('requestsent', 0);
 						}
+						$.mobile.loading("hide");
 				},		
-				error: function( jqXHR, textStatus, errorThrown){						
+				error: function( jqXHR, textStatus, errorThrown){
+					$.mobile.loading("hide");
 					//alert(textStatus);
 					//alert(errorThrown);
 				}
 			});
 		};		
-			
 		page.bind('endofpage', function(){			
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
 				show();
@@ -772,15 +793,16 @@ $(document).ready( function() {
 		show();
 	});	
 	$( document ).delegate("#coursesPage", "pagebeforeshow", function() {
-		var page = $('#courcesPage');
+		var page = $('#coursesPage');
 		function show() {
+			$.mobile.loading("show");
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
 			} else {				
 				return false;
 			}			
-			var limitstart = page.attr('limitstart');			
+			var limitstart = page.attr('limitstart');
 			$.ajax({
 				url: access.site+'/index.php?option=com_jlms_mobile&task=courses',
 				type: 'get',
@@ -809,7 +831,7 @@ $(document).ready( function() {
 										status = 'In Progress';
 									}		
 								}
-								content += '<li><a class="courses-link" extlink="'+el.link+'" href="#">'+el.course_name+'('+status+')</a></li>';								
+								content += '<li><a class="courses-ext-links" href="'+el.link+'">'+el.course_name+'('+status+')</a></li>';								
 							});							
 							if( limitstart == 0 ) {
 								content += '</ul>';
@@ -818,7 +840,9 @@ $(document).ready( function() {
 								$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
 							} else {
 								$.mobile.activePage.find('#courses-items-list').append(content).listview('refresh');							
-							}						
+							}	
+
+							jlms.bindOpenExtLinkEvent('.courses-ext-links', page.attr('id'));							
 							/*
 							var path = $.mobile.activePage[0].baseURI;							
 							var currPage = path.substr(path.lastIndexOf('/')+1);							
@@ -829,8 +853,10 @@ $(document).ready( function() {
 							page.attr('limitstart', limitstart);
 							page.attr('requestsent', 0);
 						}
+						$.mobile.loading("hide");
 				},		
-				error: function( jqXHR, textStatus, errorThrown){						
+				error: function( jqXHR, textStatus, errorThrown){	
+					$.mobile.loading("hide");
 					//alert(textStatus);
 					//alert(errorThrown);
 				}
@@ -845,10 +871,11 @@ $(document).ready( function() {
 		page.attr('limitstart', 0);
 		show();		
 	});		
-	$( document ).delegate("#homeworkPage", "pagebeforeshow", function() {		
+	$( document ).delegate("#homeworkPage", "pagebeforeshow", function() {
+		var page = $('#homeworkPage');
 		function show() {
+			$.mobile.loading("show");
 			var access = jlms.access();
-			var page = $('#homeworkPage');
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
 				page.attr('requestsent', 1);				
 			} else {				
@@ -992,15 +1019,16 @@ $(document).ready( function() {
 							page.attr('limitstart', limitstart);
 							page.attr('requestsent', 0);
 						}
+						$.mobile.loading("hide");
 				},		
-				error: function( jqXHR, textStatus, errorThrown){						
+				error: function( jqXHR, textStatus, errorThrown){
+					$.mobile.loading("hide");
 					//alert(textStatus);
 					//alert(errorThrown);
 				}
 			});
 		};		
 	
-		var page = $(this);		
 		page.bind('endofpage', function(){			
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
 				show();
@@ -1019,21 +1047,13 @@ $(document).ready( function() {
 	})
 	*/
 	$( document ).delegate("#messagesPage", "pagebeforeshow", function() {
-		var page = $(this);
+		var page = $('#messagesPage');
 		var pageId = 'messagesPage';
 		var limitStartSel = pageId+'-limitstart';
 		var requestSentSel = 'requestsent';			
-		/*
-		var msg  = 'messagesPage: '+$('#messagesPage').length;
-		msg  += "\n messagesContnt: "+$('#messagesPage #messagesContent').length;
-		msg  += "\n msg-items-list: "+$('#msg-items-list').length;
-		msg += $('#msg-items-list').parents().map(function(){
-			return  "\n parentId: "+$(this).attr('id');
-		}).get().join("\n");		
-		
-		alert(msg);
-		*/		
+	
 		function show() {
+			$.mobile.loading("show");
 			var access = jlms.access();			
 			var config = jlms.config();
 			
@@ -1215,16 +1235,17 @@ $(document).ready( function() {
 						$(document).data(limitStartSel, limitstart)						
 						$(document).data(requestSentSel, 0);						
 					}
+					$.mobile.loading("hide");
 						/*$(pages).appendTo( document.body );*/					
 				},		
-				error: function( jqXHR, textStatus, errorThrown){						
+				error: function( jqXHR, textStatus, errorThrown){	
+					$.mobile.loading("hide");
 					//alert(textStatus);
 					//alert(errorThrown);
 				}				
 			});
 		}
 			
-		var page = $(this);		
 		page.bind('endofpage', function(){			
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
 				show();
@@ -1233,58 +1254,5 @@ $(document).ready( function() {
 		
 		$(document).data(limitStartSel, 0);
 		show();
-	});	
-	
-	$( document ).delegate("#fileBrowserPage", "pageinit", function() {	
-		
-	/*
-		<ul data-role="listview">
-			<li>Acura</li>
-			<li>Audi</li>
-			<li>BMW</li>
-			<li>Cadillac</li>
-			<li>Ferrari</li>
-		</ul>
-		*/
-		//$.mobile.showPageLoadingMsg(); // show loading message		 				
-		/*
-		directoryEntry.getParent(function(par){ // success get parent
-			parentDir = par; // set parent directory
-			if( (parentDir.name == 'sdcard' && currentDir.name != 'sdcard') || parentDir.name != 'sdcard' ) $('#backBtn').show();
-		}, function(error){ // error get parent
-			console.log('Get parent error: '+error.code);
-		});
-		*/
-		 
-		var directoryReader = jlms.fileSystem.root.createReader();		
-		directoryReader.readEntries(function(entries){			
-			var dirArr = new Array();
-			var fileArr = new Array();			
-			for(var i=0; i<entries.length; ++i){ // sort entries				
-				var entry = entries[i];				
-				if( entry.isDirectory && entry.name[0] != '.' ) dirArr.push(entry);
-				else if( entry.isFile && entry.name[0] != '.' ) fileArr.push(entry);
-			}			
-			 
-			var sortedArr = dirArr.concat(fileArr); // sorted entries
-			var uiBlock = ['a','b','c','d'];			    
-			
-			var html = ' <ul data-role="listview">';			
-			for(var i=0; i < entries.length; ++i){ // show directories
-				var entry = sortedArr[i];
-				//var blockLetter = uiBlock[i%4];
-				//console.log(entry.name);
-				
-				if( entry.isDirectory )
-					html += '<li><a href="#">'+entry.name+'</a></li>';
-				else if( entry.isFile )
-					html += '<li>'+entry.name+'</li>';				
-			}			
-			html += '</ul>';									
-			$('#fileBrowserPage #content').append(html).trigger('create');			
-			//$.mobile.hidePageLoadingMsg(); // hide loading message
-		}, function(error){
-			console.log('listDir readEntries error: '+error.code);
-		});	
 	});
 })		
