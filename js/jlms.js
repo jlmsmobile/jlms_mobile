@@ -366,12 +366,15 @@ var jlms = {
 			});								
 		});	
 	},
-	bindOpenExtLinkEvent: function(sel, backHref){		
+	bindOpenExtLinkEvent: function(sel){
+		var path = $.mobile.activePage[0].baseURI;							
+		var currPage = path.substr(path.lastIndexOf('/')+1);		
+		
 		$(sel).off('click').on('click', function(e){
 			var href = $(this).attr('href');
 			$(document).data('iframeSrc', href);
 			e.preventDefault();
-			$(document).data('iframePageBackHref', backHref);
+			$(document).data('iframePageBackHref', currPage);
 			$.mobile.changePage( "iframe.html" );			
 		});	
 	}
@@ -458,13 +461,7 @@ $(document).ready( function() {
 								page.find('#res-items-list').append(content).listview('refresh');							
 							}							
 							jlms.bindOpenFileEvent('.res-file-link');
-							jlms.bindOpenExtLinkEvent('.res-ext-link', page.attr('id'));							
-							
-							/*
-							var path = $.mobile.activePage[0].baseURI;							
-							var currPage = path.substr(path.lastIndexOf('/')+1);							
-							$(document).data('iframePageBackHref', currPage);
-							*/
+							jlms.bindOpenExtLinkEvent('.res-ext-link');						
 							
 							limitstart = parseInt(limitstart)+parseInt(items.length);
 							page.attr('limitstart', limitstart);							
@@ -560,8 +557,8 @@ $(document).ready( function() {
 	$( document ).delegate("#iframePage", "pageshow", function() {		
 		var iframeSrc = $(document).data('iframeSrc');		
 		var backHref = $(document).data('iframePageBackHref');
-		//$(this).find('#iframePageBack').attr('href', '#'+backHref);		
-		$(this).find('#extcontent').attr('src', iframeSrc);
+		$(this).find('#iframePageBack').attr('href', backHref);		
+		$(this).find('#extcontent').attr('src', iframeSrc);		
 		$(this).find('#extcontent').on('load', function() {			
 			$.mobile.loading("hide");
 		});
@@ -847,7 +844,7 @@ $(document).ready( function() {
 								$.mobile.activePage.find('#courses-items-list').append(content).listview('refresh');							
 							}	
 
-							jlms.bindOpenExtLinkEvent('.courses-ext-links', page.attr('id'));							
+							jlms.bindOpenExtLinkEvent('.courses-ext-links');							
 							/*
 							var path = $.mobile.activePage[0].baseURI;							
 							var currPage = path.substr(path.lastIndexOf('/')+1);							
