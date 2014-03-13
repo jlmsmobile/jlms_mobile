@@ -372,8 +372,7 @@ var jlms = {
 			$(document).data('iframeSrc', href);
 			e.preventDefault();
 			$(document).data('iframePageBackHref', backHref);
-			$.mobile.changePage( "iframe.html" );
-			//window.open(href, '_system');							
+			$.mobile.changePage( "iframe.html" );			
 		});	
 	}
 };
@@ -382,8 +381,7 @@ document.addEventListener("deviceready", jlms.onDeviceReady, false);
 
 $(document).ready( function() {	
 	$.support.cors = true;
-	$.mobile.allowCrossDomainPages = true;
-	$.mobile.allowCrossDomainPages = true;
+	$.mobile.allowCrossDomainPages = true;	
 	$.mobile.defaultPageTransition = "none";	
 /*
 	var testPageId = '#messagesPage';
@@ -406,7 +404,7 @@ $(document).ready( function() {
 		alert('pagechange');
 	})
 */
-	$( document ).delegate("#resourcesPage", "pagebeforeshow", function() {
+	$( document ).delegate("#resourcesPage", "pageshow", function() {
 		var page = $('#resourcesPage');
 		page.data('history', []);
 		page.attr('data-parent', 0);		
@@ -528,7 +526,7 @@ $(document).ready( function() {
 		show();		
 	});	
 
-	$( document ).delegate("#dashboardPage", "pagebeforeshow", function(e, d) {	
+	$( document ).delegate("#dashboardPage", "pageshow", function(e, d) {	
 		var data = jlms.getData();		
 		jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: false}, function(dir) {
 			var html = '<ul data-role="listview">';	
@@ -559,14 +557,21 @@ $(document).ready( function() {
 		})		
 	});
 	
-	$( document ).delegate("#iframePage", "pagebeforeshow", function() {			
+	$( document ).delegate("#iframePage", "pageshow", function() {		
 		var iframeSrc = $(document).data('iframeSrc');		
 		var backHref = $(document).data('iframePageBackHref');
 		//$(this).find('#iframePageBack').attr('href', '#'+backHref);		
-		$(this).find('#extcontent').attr('src', iframeSrc);	
+		$(this).find('#extcontent').attr('src', iframeSrc);
+		$(this).find('#extcontent').on('load', function() {			
+			$.mobile.loading("hide");
+		});
 	});
 	
-	$( document ).delegate("#setupPage", "pagebeforeshow", function() {
+	$( document ).delegate("#iframePage", "pageshow", function() {		
+		$.mobile.loading("show");
+	});
+	
+	$( document ).delegate("#setupPage", "pageshow", function() {
 		var data = jlms.getData();		
 		jlms.fileSystem.root.getDirectory( jlms.consts.DIR_IMAGES, {create: false}, function(dir) {
 			var html = '<form><div class="ui-grid-d">';			
@@ -601,7 +606,7 @@ $(document).ready( function() {
 		}, jlms.failFile );
 	});			
 		
-	$( document ).delegate("#loginPage", "pagebeforeshow", function() {	
+	$( document ).delegate("#loginPage", "pageshow", function() {	
 		var access = jlms.access();
 					
 		$('#loginPage #site').val(access.site);
@@ -617,7 +622,7 @@ $(document).ready( function() {
 		})		
 	});	
 	
-	$( document ).delegate("#loginPage-first", "pagebeforeshow", function() {						
+	$( document ).delegate("#loginPage-first", "pageshow", function() {						
 		$('#loginPage-first #save-btn').click(function() {			
 			var site = $('#loginPage-first #site').val();
 			var name = $('#loginPage-first #name').val();
@@ -649,10 +654,10 @@ $(document).ready( function() {
 			$('div[data-role="page"]').trigger('endofpage');
 		}
 	});
-	$( document ).delegate("#announcePage", "pagebeforeshow", function() {
+	$( document ).delegate("#announcePage", "pageshow", function() {
 		var page = $('#announcePage');
-		function show() {
-			$.mobile.loading("show");
+		$.mobile.loading("show");
+		function show() {			
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
 				page.attr('requestsent', 1);				
@@ -725,10 +730,10 @@ $(document).ready( function() {
 		page.attr('limitstart', 0);	
 		show();
 	});
-	$( document ).delegate("#certificatesPage", "pagebeforeshow", function() {
+	$( document ).delegate("#certificatesPage", "pageshow", function() {
 		var page = $('#certificatesPage');
-		function show() {
-			$.mobile.loading("show");
+		$.mobile.loading("show");
+		function show() {			
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
@@ -792,10 +797,10 @@ $(document).ready( function() {
 		page.attr('limitstart', 0);
 		show();
 	});	
-	$( document ).delegate("#coursesPage", "pagebeforeshow", function() {
+	$( document ).delegate("#coursesPage", "pageshow", function() {
 		var page = $('#coursesPage');
-		function show() {
-			$.mobile.loading("show");
+		$.mobile.loading("show");
+		function show() {			
 			var access = jlms.access();			
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {				
 				page.attr('requestsent', 1);				
@@ -871,10 +876,10 @@ $(document).ready( function() {
 		page.attr('limitstart', 0);
 		show();		
 	});		
-	$( document ).delegate("#homeworkPage", "pagebeforeshow", function() {
+	$( document ).delegate("#homeworkPage", "pageshow", function() {
 		var page = $('#homeworkPage');
-		function show() {
-			$.mobile.loading("show");
+		$.mobile.loading("show");
+		function show() {			
 			var access = jlms.access();
 			if(page.attr('requestsent') == undefined || page.attr('requestsent') == 0) {
 				page.attr('requestsent', 1);				
@@ -1046,14 +1051,13 @@ $(document).ready( function() {
 		data['prevPage'].empty();
 	})
 	*/
-	$( document ).delegate("#messagesPage", "pagebeforeshow", function() {
+	$( document ).delegate("#messagesPage", "pageshow", function() {
 		var page = $('#messagesPage');
 		var pageId = 'messagesPage';
 		var limitStartSel = pageId+'-limitstart';
 		var requestSentSel = 'requestsent';			
-	
-		function show() {
-			$.mobile.loading("show");
+		$.mobile.loading("show");
+		function show() {			
 			var access = jlms.access();			
 			var config = jlms.config();
 			
@@ -1081,7 +1085,7 @@ $(document).ready( function() {
 							var content = '';
 						}
 						var newEls = false;						
-						$(items).each( function(i, el) {						
+						$(items).each( function(i, el) {					
 							var messId = 'message-'+el.type+'-'+el.id+'Page';							
 							if(!$('#'+messId).length) {
 								var pages = '';
