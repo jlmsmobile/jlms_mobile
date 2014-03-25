@@ -522,7 +522,8 @@ $(document).ready( function() {
 	});	
 
 	$( document ).delegate("#dashboardPage", "pageshow", function(e, d) {		
-		var access = jlms.access();			
+		var access = jlms.access();
+		$.mobile.loading("show");
 		$.ajax({					
 			url: access.site+'/index.php?option=com_jlms_mobile&task=newitems',
 			type: 'get',
@@ -555,10 +556,12 @@ $(document).ready( function() {
 						}
 					});		
 					html += '</ul>';						
-					$.mobile.activePage.find('[data-role=content]').append(html).trigger('create');					
+					$.mobile.activePage.find('[data-role=content]').append(html).trigger('create');
+					$.mobile.loading("hide");
 				}, jlms.failFile );	
 			},		
-			error: function( jqXHR, textStatus, errorThrown){									
+			error: function( jqXHR, textStatus, errorThrown){	
+				$.mobile.loading("hide");
 				//$.mobile.changePage( "login-first.html" );
 			}
 		});				
