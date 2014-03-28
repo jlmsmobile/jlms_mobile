@@ -956,8 +956,8 @@ $(document).ready( function() {
 								var elId = $(this).attr('elid');
 							
 								if(elType == 3){
-									//var file = $('#file'+hwId).val();
-									var file = jlms.consts.DIR_IMAGES+'/messages.png';
+									var file = $('#file'+hwId).val();
+									//var file = jlms.consts.DIR_IMAGES+'/messages.png';
 									if( file.length ) {
 										jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
 											var options = new FileUploadOptions();
