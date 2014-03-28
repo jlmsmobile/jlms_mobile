@@ -957,6 +957,7 @@ $(document).ready( function() {
 							
 								if(elType == 3){
 									var file = $('#file'+hwId).val();
+									alert(file);
 									//var file = jlms.consts.DIR_IMAGES+'/messages.png';
 									if( file.length ) {
 										jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
