@@ -971,20 +971,22 @@ $(document).ready( function() {
 											params.id = elId;
 											params.type = elType;
 											params.completed = true;											
-											options.params = params;
-											
+											options.params = params;											
 											$.mobile.loading("show");											
 											var ft = new FileTransfer();																				
 											var action = access.site+jlms.consts.HW_POST;		
 											//ft.upload(file, action, function(r) {											
-											ft.upload(fileEntry.fullPath, action, function(r) {													
+											alert(111);
+											ft.upload(fileEntry.fullPath, action, function(r) {												
+												alert(222);
 												if(res = jlms.checkAlert(r.response)) {
 													alert(res);
 												} else {													
 													alert('Completed');
 												}
 												$.mobile.loading("hide");
-											}, function(error){ 
+											}, function(error){ 													
+													alert(333);
 													jlms.failFileTransfer(error);
 													$.mobile.loading("hide");
 											}, options, true);										
