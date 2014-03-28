@@ -991,6 +991,11 @@ $(document).ready( function() {
 													jlms.failFileTransfer(error);
 													$.mobile.loading("hide");
 											}, options, true);										
+										},		
+										error: function( jqXHR, textStatus, errorThrown){
+											//$.mobile.loading("hide");
+											alert(textStatus);
+											alert(errorThrown);
 										});
 									}
 								}else{									
@@ -1053,8 +1058,8 @@ $(document).ready( function() {
 				},		
 				error: function( jqXHR, textStatus, errorThrown){
 					$.mobile.loading("hide");
-					alert(textStatus);
-					alert(errorThrown);
+					//alert(textStatus);
+					//alert(errorThrown);
 				}
 			});
 		};		
