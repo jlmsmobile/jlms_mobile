@@ -4,3 +4,28 @@
 .ui-grid-file .ui-block-b{width: 55%; padding: 0 10px;}
 .ui-grid-file .ui-block-c{width: 10%}
 .ui-grid-file .ui-block-a{clear:left}
+
+/*filebrowser*/
+.folder, .file{
+    font-family:sans;
+    font-size:10px;
+    cursor:pointer;	
+	float: left;
+	width: 100%;
+}
+ 
+.folder{
+    background: url('images/folder.png') no-repeat 50% 0%;
+    margin:2px;
+    padding-top:25px;
+    text-align:center;	
+}
+ 
+ 
+.file{
+    background: url('images/file.png') no-repeat 50% 0%;
+    margin:2px;
+    padding-top:25px;
+    text-align:center;	
+}
+/*filebrowser*/

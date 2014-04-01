@@ -4,6 +4,9 @@ var jlms = {
 	dbCounter: 0,
 	instances: [],
 	courseslist: [],
+	history: {
+		browser:[]
+	},
 	consts: {
 		AUTH_PAGE: 'index.php?option=com_jlms_mobile&task=checkaccess',
 		MESSAGE_POST: 'index.php?option=com_jlms_mobile&task=sendmessage',
@@ -152,7 +155,7 @@ var jlms = {
 														};												
 														reader.readAsText(file);																						
 												}, jlms.failFile);					
-										}, jlms.failFile());
+										}, jlms.failFile);
 									};
 									reader1.onloaderror = function(evt) {				
 										alert('read config file error');
@@ -270,7 +273,7 @@ var jlms = {
 	},		
 	failFile: function(error) {
 		var err = '';
-		/*
+/*		
 		switch(error.code) 
 		{		
 			case FileError.NOT_FOUND_ERR:
@@ -313,9 +316,9 @@ var jlms = {
 				alert(error.code+'  '+error.target);
 		}		
 		alert(err);
-		var err = new Error();		
-		alert(err.stack);
-		*/		
+		//var err = new Error();		
+		//alert(err.stack);	
+		*/
 	},	
 	failFileTransfer: function(error) {
 		var err = '';
@@ -376,6 +379,66 @@ var jlms = {
 			$(document).data('iframePageBackHref', currPage);
 			$.mobile.changePage( "iframe.html" );			
 		});	
+	},
+	listDir: function(directoryEntry) {
+		$('#bp-back-btn').hide();
+		$('#bp-back-btn').off('click').on('click', function(){
+			var dirName = $(this).text();						
+			jlms.listDir(jlms.history.browser.pop());			
+		});
+		
+		$.mobile.showPageLoadingMsg();
+		
+		var currentDir = directoryEntry; 
+		directoryEntry.getParent(function(par){
+			parentDir = par;
+			if( (parentDir.name == 'sdcard' && currentDir.name != 'sdcard') || parentDir.name != 'sdcard' ) {
+				$('#bp-back-btn').show();
+			}
+		}, function(error){
+			console.log('Get parent error: '+error.code);
+		});
+		
+		var directoryReader = directoryEntry.createReader();	
+		
+		directoryReader.readEntries(function(entries){			
+			var dirContent = $($.mobile.activePage.find('[data-role=content]').get(0));						
+			dirContent.empty();			 
+			var dirArr = new Array();
+			var fileArr = new Array(); 			
+			for(var i=0; i<entries.length; ++i){
+				var entry = entries[i];
+				if( entry.isDirectory && entry.name[0] != '.' ) dirArr.push(entry);
+				else if( entry.isFile && entry.name[0] != '.' ) fileArr.push(entry);
+			}			 			
+			var sortedArr = dirArr.concat(fileArr);
+			var uiBlock = ['a','b','c','d'];
+			var html = '';
+			
+			for(var i=0; i<sortedArr.length; ++i){
+				var entry = sortedArr[i];
+				var blockLetter = uiBlock[i%4];				
+				if( entry.isDirectory )
+					html += '<div class="ui-block-'+blockLetter+'"><a class="folder">'+entry.name+'</a></div>';
+				else if( entry.isFile )
+					html += '<div class="ui-block-'+blockLetter+'"><a class="file">'+entry.name+'</a></div>';
+			}			
+			dirContent.append(html).trigger('create');
+			$('.folder').off('click').on('click', function(e){
+				var dirName = $(this).text();
+				jlms.history.prevDirEntry = currentDir;
+				currentDir.getDirectory(dirName, {create: false}, function(entry){
+					jlms.history.browser.push(currentDir);
+					jlms.listDir(entry);
+				});						
+			});
+			$('.file').off('click').on('click', function(e){				
+				e.preventDefault();				
+			});
+			$.mobile.hidePageLoadingMsg();
+		}, function(error){
+			console.log('listDir readEntries error: '+error.code);
+		});
 	}
 };
 
@@ -933,7 +996,7 @@ $(document).ready( function() {
 										case 3:												
 										pages += '		<div><span id="file-path-'+hwId+'" ></span></div>';
 										pages += '		<button type="button" id="file-btn-'+hwId+'" data-icon="grid" data-theme="a">File</button>';
-										pages += '		<input type="file" value="" name="file-'+hwId+'" id="file-'+hwId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
+										/*pages += '		<input type="file" value="" name="file-'+hwId+'" id="file-'+hwId+'" style="visibility: hidden; width: 1px;" data-role="none" >';*/
 										break;
 									}																		
 									pages += '		<button type="submit"  elid="'+el.id+'" eltype="'+el.type+'" prefix="'+hwId+'" class="send-msg-btn" id="send-'+hwId+'" data-theme="b">Completed</button>';																		
@@ -941,11 +1004,11 @@ $(document).ready( function() {
 									pages += '</div>';								
 									$(pages).appendTo( document.body );																			
 									$('#file-'+hwId).bind('change', function() {
-										var file = $('#file'+hwId).val();
+										var file = $('#file-'+hwId).val();
 										$('#file-path-'+hwId).text(file.substr(file.lastIndexOf('/')+1)); 
 									});
 									$('#file-btn-'+hwId).bind('click', function(e){							
-										$('#file-'+hwId).trigger('click');							
+										$.mobile.changePage("browser.html");
 									});
 								}
 								content += '<li><a class="hw-list-item" data-hw-id="'+el.id+'" href="#'+hwId+'">'+el.name+'</a></li>';								
@@ -958,15 +1021,16 @@ $(document).ready( function() {
 								if(elType == 3){
 									var file = $('#file-'+hwId).val();
 									
-									//var file = jlms.consts.DIR_IMAGES+'/messages.png';
-									if( file.length ) {
-										jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {								
-											var options = new FileUploadOptions();
+									var file2 = jlms.consts.DIR_IMAGES+'/messages.png';
+									alert(file+"\n"+file2);
+									if( file.length ) {										
+										jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {											
+											var options = new FileUploadOptions();											
 											options.fileKey="file";
-											//options.fileName=file.substr(file.lastIndexOf('/')+1);
+											//options.fileName=file.substr(file.lastIndexOf('/')+1);											
 											options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
-											//options.mimeType="text/plain";
-											options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
+											//options.mimeType="text/plain";																						
+											options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)};											
 											
 											var params = new Object();																				
 											params.id = elId;
@@ -992,7 +1056,7 @@ $(document).ready( function() {
 													$.mobile.loading("hide");
 											}, options, true);										
 										},		
-										error: function( jqXHR, textStatus, errorThrown){
+										function(error) {
 											//$.mobile.loading("hide");
 											alert(textStatus);
 											alert(errorThrown);
@@ -1302,4 +1366,8 @@ $(document).ready( function() {
 		$(document).data(limitStartSel, 0);
 		show();
 	});
+	
+	$( document ).delegate("#browserPage", "pageshow", function() {		
+		jlms.listDir(jlms.fileSystem.root);
+	})
 })		
