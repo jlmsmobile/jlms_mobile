@@ -8,8 +8,9 @@ var jlms = {
 		browser:[]
 	},
 	registry: {		
-		currItemId:0,
-		uploadedFilePath: ''		
+		currItem:{id:0, type:''},
+		uploadedFilePath: '',
+		parentPage: ''
 	},
 	consts: {
 		AUTH_PAGE: 'index.php?option=com_jlms_mobile&task=checkaccess',
@@ -425,7 +426,7 @@ var jlms = {
 				if( entry.isDirectory )
 					html += '<div class="ui-block-'+blockLetter+'"><a class="folder">'+entry.name+'</a></div>';
 				else if( entry.isFile )
-					html += '<div class="ui-block-'+blockLetter+'"><a class="file">'+entry.name+'</a></div>';
+					html += '<div class="ui-block-'+blockLetter+'"><a data-path="'+entry.fullPath+'" class="file">'+entry.name+'</a></div>';
 			}			
 			dirContent.append(html).trigger('create');
 			$('.folder').off('click').on('click', function(e){
@@ -437,6 +438,8 @@ var jlms = {
 				});						
 			});
 			$('.file').off('click').on('click', function(e){				
+				jlms.registry.uploadedFilePath = $(this).data('path');				
+				$.mobile.changePage( jlms.registry.parentPage );
 				e.preventDefault();				
 			});
 			$.mobile.hidePageLoadingMsg();
@@ -953,11 +956,11 @@ $(document).ready( function() {
 		});		
 		page.attr('limitstart', 0);
 		show();		
-	});		
-	$( document ).delegate("#hwDetailsPage", "pageshow", function() {
+	});			
+	$( document ).delegate("#homeworkDetailsPage", "pageshow", function() {
 		var access = jlms.access();
 		$.mobile.loading("show");
-		var id = jlms.registry.currItemId;		
+		var id = jlms.registry.currItem.id;		
 		$.ajax({
 			url: access.site+'/index.php?option=com_jlms_mobile&task=hwdetails',
 			type: 'get',
@@ -970,17 +973,17 @@ $(document).ready( function() {
 				$("#hw-title").html(data.title);				
 				content = data.desc;						
 				content += '<div data-role="panel" data-position="right" data-display="overlay" data-theme="b">';
-				switch(data.type){						
+				switch(parseInt(data.type)){						
 					case 2:
 					content += '<textarea cols="40" rows="8" name="text" id="text" placeholder="Description" data-theme="c"></textarea>';							
 					break;
 					case 3:												
-					content	+= '<div><span id="file-path" ></span></div>';
+					content	+= '<div><span>'+jlms.registry.uploadedFilePath.substr(jlms.registry.uploadedFilePath.lastIndexOf('/')+1)+'</span></div>';
 					content	+= '<button type="button" class="file-btn" data-icon="grid" data-theme="a">File</button>';					
 					break;
 				}																		
-				content += '<button type="submit" data-hw-type="'+data.type+'" class="send-msg-btn" data-theme="b">Completed</button>';																		
-				content += '</div>';				
+				content += '<button type="submit" data-type="'+data.type+'" class="send-msg-btn" data-theme="b">Completed</button>';																		
+				content += '</div>';
 				
 				$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
 				/*
@@ -989,27 +992,27 @@ $(document).ready( function() {
 					$('#file-path-'+hwId).text(file.substr(file.lastIndexOf('/')+1)); 
 				});
 				*/
-				$('.reply-btn').on('click', function(e){					
+				if(jlms.registry.uploadedFilePath.length>0) {
 					$(document).find('[data-role=panel]').panel( "open");
+				}
+				$('.reply-btn').on('click', function(e){					
+					$(document).find('[data-role=panel]').panel( "toggle");
 				});				
-				$('.file-btn').on('click', function(e){							
+				$('.file-btn').on('click', function(e){	
+					jlms.registry.parentPage = "homework-details.html";
 					$.mobile.changePage("browser.html");
 				});				
 				$('.send-msg-btn').off('click').on('click', function(){					
-					var elType = $(this).attr('eltype');
-					var elId = id;
+					var elType = $(this).data('type');
+					var elId = id;					
 				
-					if(elType == 3){
-						var file = jlms.registry.uploadedFilePath;
-						
-						var file2 = jlms.consts.DIR_IMAGES+'/messages.png';
-						alert(file+"\n"+file2);
-						if( file.length ) {										
-							jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {											
+					if(elType == 3){						
+						var filePath = jlms.registry.uploadedFilePath;
+						if( filePath.length ) {		
 								var options = new FileUploadOptions();											
 								options.fileKey="file";
 								//options.fileName=file.substr(file.lastIndexOf('/')+1);											
-								options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
+								options.fileName=filePath.substr(filePath.lastIndexOf('/')+1);
 								//options.mimeType="text/plain";																						
 								options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)};											
 								
@@ -1021,24 +1024,19 @@ $(document).ready( function() {
 								$.mobile.loading("show");											
 								var ft = new FileTransfer();																				
 								var action = access.site+jlms.consts.HW_POST;		
-								//ft.upload(file, action, function(r) {
-								ft.upload(fileEntry.fullPath, action, function(r) {
+								//ft.upload(file, action, function(r) {								
+								ft.upload(filePath, action, function(r) {									
 									if(res = jlms.checkAlert(r.response)) {
 										alert(res);
-									} else {											
+									} else {		
+										$(document).find('[data-role=panel]').panel( "close");
 										alert('Completed');
 									}
 									$.mobile.loading("hide");
 								}, function(error){													
 										jlms.failFileTransfer(error);
 										$.mobile.loading("hide");
-								}, options, true);										
-							},		
-							function(error) {
-								//$.mobile.loading("hide");
-								alert(textStatus);
-								alert(errorThrown);
-							});
+								}, options, true);							
 						}
 					}else{									
 						var canSend = true;
@@ -1059,6 +1057,7 @@ $(document).ready( function() {
 									if(res = jlms.checkAlert(r)) {
 										alert(res);
 									} else {
+										$(document).find('[data-role=panel]').panel( "close");
 										alert('Completed');
 									}			
 								},
@@ -1081,6 +1080,9 @@ $(document).ready( function() {
 			}
 		});			
 	});
+	$( document ).delegate("#homeworkDetailsPage", "pageremove", function() {
+		jlms.registry.uploadedFilePath = '';
+	})	
 	$( document ).delegate("#homeworkPage", "pageshow", function() {
 		var page = $('#homeworkPage');
 		$.mobile.loading("show");
@@ -1109,7 +1111,7 @@ $(document).ready( function() {
 								var content = '';
 							}						
 							$(items).each( function(i, el) {							
-								content += '<li><a class="hw-list-item" data-hw-id="'+el.id+'">'+el.name+'</a></li>';								
+								content += '<li><a class="hw-list-item" data-id="'+el.id+'">'+el.name+'</a></li>';								
 							});
 							if( limitstart == 0 ) {
 								content += '</ul>';
@@ -1120,7 +1122,7 @@ $(document).ready( function() {
 								$.mobile.activePage.find('#hw-items-list').append(content).listview('refresh');							
 							}
 							$('.hw-list-item').on('click', function(e){
-								jlms.registry.currItemId = $(this).data('hw-id');
+								jlms.registry.currItem.id = $(this).data('id');							
 								$.mobile.changePage("homework-details.html");
 							});											
 							limitstart = parseInt(limitstart)+parseInt(items.length);
@@ -1135,7 +1137,7 @@ $(document).ready( function() {
 					//alert(errorThrown);
 				}
 			});
-		};		
+		};				
 	
 		page.bind('endofpage', function(){			
 			if(page.attr('id') == $.mobile.activePage.attr('id')) {				
@@ -1144,16 +1146,146 @@ $(document).ready( function() {
 		});		
 		page.attr('limitstart', 0);		
 		show();
-	});	
-	/*
-	$( document ).delegate("#dashboardPage", "pageshow", function(e, data) {
-		var str = '';
-		for(var i in data['prevPage']){
-			str += i+"\n";
-		}		
-		data['prevPage'].empty();
+	});
+
+	$( document ).delegate("#messageDetailsPage", "pageshow", function() {
+		var access = jlms.access();
+		$.mobile.loading("show");
+		var id = jlms.registry.currItem.id;		
+		var type = jlms.registry.currItem.type;		
+		$.ajax({
+			url: access.site+'/index.php?option=com_jlms_mobile&task=msgdetails',
+			type: 'get',
+			dataType: 'json', 
+			data: {'id': id, 'type': type},
+			beforeSend: function (xhr){ 
+				xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+			},
+			success: function(data) {				
+				$("#msg-title").html(data.subject);
+				var content = '';
+				if( data.filelink.length ) {
+					content += '	<p align="left"><a class="attached-file" data-filename="'+data.filename+'" href="'+data.filelink+'">'+data.filename+'</a></p>';
+				}
+				content += data.message;
+				content += '<div data-role="panel" data-position="right" data-display="overlay" data-theme="b">';
+				if(data.type == 'mb') {//for mailbox only
+					content += '	<input id="subject" type="text" value="Re: '+data.subject+'" data-theme="c" placeholder="Subject"/>';						
+					content += '	<textarea cols="40" rows="8" id="text" placeholder="Text" data-theme="c"></textarea>';
+				} else {
+					content += '	<input id="name" type="text" value="Re: '+data.subject+'" data-theme="c" placeholder="Name"/>';						
+					content += '	<textarea cols="40" rows="8" id="comment" placeholder="Comment" data-theme="c"></textarea>';
+				}
+				content += '	<div><span>'+jlms.registry.uploadedFilePath.substr(jlms.registry.uploadedFilePath.lastIndexOf('/')+1)+'</span></div>';						
+				content += '	<button type="button" class="file-btn" data-icon="grid" data-theme="a">File</button>';						
+				content += '	<button type="button" data-id="'+data.id+'" data-type="'+data.type+'" class="send-msg-btn" data-theme="b">Send</button>';										
+				content += '</div>';
+								
+				$.mobile.activePage.find('[data-role=content]').append(content).trigger('create');
+				
+				jlms.bindOpenFileEvent('.attached-file');
+				
+				if(jlms.registry.uploadedFilePath.length>0) {
+					$(document).find('[data-role=panel]').panel( "open");
+				}
+				$('.reply-btn').on('click', function(e){					
+					$(document).find('[data-role=panel]').panel( "toggle");
+				});				
+				$('.file-btn').on('click', function(e){
+					jlms.registry.parentPage = "message-details.html";
+					$.mobile.changePage("browser.html");
+				});				
+				$('.send-msg-btn').off('click').on('click', function(){										
+					var elType = $(this).data('type');
+					var elId = jlms.registry.currItem.id;							
+					var canSend = false;
+					
+					if(elType == 'mb') {
+						var text = $('#text').val();														
+						var subject = $('#subject').val();								
+						canSend = (text.length > 0);
+					} else {
+						var name = $('#name').val();														
+						var comment = $('#comment').val();								
+						canSend = true;
+					}						
+					
+					var filePath = jlms.registry.uploadedFilePath;
+					if(canSend) {							
+						if( filePath.length ) {							
+								var options = new FileUploadOptions();
+								options.fileKey="file";
+								//options.fileName=file.substr(file.lastIndexOf('/')+1);
+								options.fileName=filePath.substr(filePath.lastIndexOf('/')+1);
+								//options.mimeType="text/plain";
+								options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
+								
+								var params = new Object();																				
+								params.id = elId;
+								params.type = elType;										
+								if(elType == 'mb') {										
+									var action = access.site+jlms.consts.MESSAGE_POST;
+									params.message = text;
+									params.subject = subject;											
+								} else {
+									var action = access.site+jlms.consts.DROPBOX_POST;
+									params.comment = comment;
+									params.name = name;											
+								}										
+								options.params = params;
+								
+								$.mobile.loading("show");
+								
+								var ft = new FileTransfer();																				
+								//ft.upload(file, action, function(r) {											
+								ft.upload(filePath, action, function(r) {											
+									if(res = jlms.checkAlert(r.response)) {
+										alert(res);
+									} else {					
+										$(document).find('[data-role=panel]').panel( "close");
+										alert('File was sent');										
+									}
+									$.mobile.loading("hide");
+								}, function(error){ 
+										jlms.failFileTransfer(error);
+										$.mobile.loading("hide");
+								}, options, true);							
+						} else {	
+							if(elType == 'mb') {
+								$.ajax({
+									type: "POST",
+									url: access.site+jlms.consts.MESSAGE_POST,
+									enctype: 'multipart/form-data',
+									data: {'message': text, 'id': elId, 'type': elType},
+									beforeSend: function (xhr){ 
+										xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
+									},
+									success: function (r) {
+										if(res = jlms.checkAlert(r)) {
+												alert(res);
+										} else {
+											$(document).find('[data-role=panel]').panel( "close");
+											alert('Message was sent');												
+										}	
+									}										
+								});
+							}
+						}								
+					}
+				});	
+				$.mobile.loading("hide");
+			},		
+			error: function( jqXHR, textStatus, errorThrown){
+				$.mobile.loading("hide");
+				//alert(textStatus);
+				//alert(errorThrown);
+			}
+		});			
+	});
+	$( document ).delegate("#messagePage", "pageremove", function() {
+		jlms.registry.uploadedFilePath = '';
 	})
-	*/
+	
 	$( document ).delegate("#messagesPage", "pageshow", function() {
 		var page = $('#messagesPage');
 		var pageId = 'messagesPage';
@@ -1186,141 +1318,10 @@ $(document).ready( function() {
 						} else {
 							var content = '';
 						}
-						var newEls = false;						
-						$(items).each( function(i, el) {					
-							var messId = 'message-'+el.type+'-'+el.id+'Page';							
-							if(!$('#'+messId).length) {
-								var pages = '';
-								pages += '<div class="subPages" data-role="page" id="'+messId+'">';
-								pages += '	<div data-role="header"><a href="messages.html" data-icon="back">Back</a>';
-								pages += '		<h1>'+el.subject+'</h1>';
-								pages += '	<a href="#reply-panel-'+messId+'" data-icon="edit" >Reply</a>';
-								pages += '	</div>';														
-								pages += '	<div data-role="content">';
-								if( el.filelink.length ) {
-									pages += '	<p align="left"><a class="attached-file" data-filename="'+el.filename+'" href="'+el.filelink+'">'+el.filename+'</a></p>';
-								}
-								pages += el.message+'</div>';
-								pages += '<div data-role="panel" id="reply-panel-'+messId+'" data-position="right" data-display="overlay" data-theme="b">';							
-								if(el.type == 'mb') {//for mailbox only
-									pages += '		<input id="subject-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Subject"/>';						
-									pages += '		<textarea cols="40" rows="8" id="text-'+messId+'" placeholder="Text" data-theme="c"></textarea>';
-								} else {
-									pages += '		<input id="name-'+messId+'" type="text" value="Re: '+el.subject+'" data-theme="c" placeholder="Name"/>';						
-									pages += '		<textarea cols="40" rows="8" id="comment-'+messId+'" placeholder="Comment" data-theme="c"></textarea>';
-								}
-								pages += '		<div><span id="file-path-'+messId+'" ></span></div>';						
-								pages += '		<button type="button" id="file-btn-'+messId+'" data-icon="grid" data-theme="a">File</button>';						
-								pages += '		<button type="button" elid="'+el.id+'" eltype="'+el.type+'" prefix="'+messId+'" class="send-msg-btn" data-theme="b">Send</button>';						
-								pages += '		<input type="file" value="" id="file-'+messId+'" style="visibility: hidden; width: 1px;" data-role="none" >';
-								pages += '</div>';							
-								pages += '	<div data-role="footer" data-position="fixed"></div>';							
-								pages += '</div>';								
-								$(pages).appendTo( document.body );											
-								$('#file-'+messId).bind('change', function() { 
-									var file = $('#file'+messId).val();
-									$('#file-path-'+messId).text(file.substr(file.lastIndexOf('/')+1)); 
-								});
-								$('#file-btn-'+messId).bind('click', function(e){							
-									$('#file-'+messId).trigger('click');							
-								});
-							}
-							content += '<li><a class="message-list-item" data-message-id="'+el.id+'" href="#'+messId+'">'+el.subject+'</a></li>';											
-						});		
 						
-
-						$('.send-msg-btn').off('click').on('click', function(){						
-							var messId = $(this).attr('prefix');
-							var elType = $(this).attr('eltype');
-							var elId = $(this).attr('elid');							
-							var canSend = false;
-							if(elType == 'mb') {
-								var text = $('#text-'+messId).val();														
-								var subject = $('#subject-'+messId).val();								
-								canSend = (text.length > 0);
-							} else {
-								var name = $('#name-'+messId).val();														
-								var comment = $('#comment-'+messId).val();								
-								canSend = true;
-							}							
-							//var file = $('#file'+messId).val();
-							var file = jlms.consts.DIR_IMAGES+'/messages.png';								
-							if(canSend) {							
-								if( file.length ) {								
-									jlms.fileSystem.root.getFile(file, {create: false, exclusive: false}, function(fileEntry) {									
-										var options = new FileUploadOptions();
-										options.fileKey="file";
-										//options.fileName=file.substr(file.lastIndexOf('/')+1);
-										options.fileName=fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/')+1);
-										//options.mimeType="text/plain";
-										options.headers = {'Authorization':jlms.make_base_auth(access.name, access.pass)}; 
-										
-										var params = new Object();																				
-										params.id = elId;
-										params.type = elType;										
-										if(elType == 'mb') {										
-											var action = access.site+jlms.consts.MESSAGE_POST;
-											params.message = text;
-											params.subject = subject;											
-										} else {
-											var action = access.site+jlms.consts.DROPBOX_POST;
-											params.comment = comment;
-											params.name = name;											
-										}										
-										options.params = params;
-										
-										$.mobile.loading("show");
-										
-										var ft = new FileTransfer();																				
-										//ft.upload(file, action, function(r) {											
-										ft.upload(fileEntry.fullPath, action, function(r) {											
-											if(res = jlms.checkAlert(r.response)) {
-												alert(res);
-											} else {
-												switch(elType) {
-													case 'db':
-														alert('File was sent');
-													break
-													case 'mb':
-														alert('Message was sent');
-													break	
-												}
-											}
-											$.mobile.loading("hide");
-										}, function(error){ 
-												jlms.failFileTransfer(error);
-												$.mobile.loading("hide");
-										}, options, true);										
-									});																	
-								} else {	
-									if(elType == 'mb') {
-										$.ajax({
-											type: "POST",
-											url: access.site+jlms.consts.MESSAGE_POST,
-											enctype: 'multipart/form-data',
-											data: {'message': text, 'id': elId, 'type': elType},
-											beforeSend: function (xhr){ 
-												xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
-											},
-											success: function (r) {
-												if(res = jlms.checkAlert(r)) {
-														alert(res);
-												} else {
-													switch(elType) {
-														case 'db':
-															alert('File was sent');
-														break
-														case 'mb':
-															alert('Message was sent');
-														break	
-													}
-												}			
-											}										
-										});
-									}
-								}								
-							}
-						});
+						$(items).each( function(i, el) {							
+							content += '<li><a class="msg-list-item" data-type="'+el.type+'" data-id="'+el.id+'">'+el.subject+'</a></li>';											
+						});					
 
 						if( limitstart == 0 ) {
 							content += '</ul>';
@@ -1330,27 +1331,14 @@ $(document).ready( function() {
 						} else {
 							$.mobile.activePage.find('#msg-items-list').append(content).listview('refresh');							
 						}
-						$('.message-list-item').off('click').on('click', function(){
-							var messId = $(this).attr('data-message-id');							
-							$.ajax({url: access.site+'/index.php?option=com_jlms_mobile&task=markviewedmessage',
-								type: 'get',
-								data: {'id':messId},
-								beforeSend: function (xhr){ 
-									xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass));
-								},
-								success: function() {},		
-								error: function( jqXHR, textStatus, errorThrown){}
-							})								
+						
+						$('.msg-list-item').on('click', function(e){
+							jlms.registry.currItem.id = $(this).data('id');							
+							jlms.registry.currItem.type = $(this).data('type');	
+							
+							$.mobile.changePage("message-details.html");
 						});						
 						
-						jlms.bindOpenFileEvent('.attached-file');						
-						/*
-						$('.message-file').on('click', function(){
-							var src = $(this).attr('href');							
-							window.open(src, '_system');
-							event.stopPropagation();
-						});
-						*/
 						limitstart = parseInt(limitstart)+parseInt(items.length);
 						$(document).data(limitStartSel, limitstart)						
 						$(document).data(requestSentSel, 0);						
@@ -1376,7 +1364,9 @@ $(document).ready( function() {
 		show();
 	});
 	
-	$( document ).delegate("#browserPage", "pageshow", function() {		
+	$( document ).delegate("#browserPage", "pageshow", function() {	
+		$.mobile.loading("show");
 		jlms.listDir(jlms.fileSystem.root);
+		$.mobile.loading("hide");
 	})
 })		
