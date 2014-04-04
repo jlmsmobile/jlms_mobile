@@ -385,19 +385,17 @@ var jlms = {
 			$.mobile.changePage( "iframe.html" );			
 		});	
 	},
-	listDir: function(directoryEntry) {
+	listDir: function(directoryEntry) {	
 		$('#bp-back-btn').hide();
-		$('#bp-back-btn').off('click').on('click', function(){
-			var dirName = $(this).text();						
-			jlms.listDir(jlms.history.browser.pop());			
-		});
+		$('#title').text('');
 		
-		$.mobile.showPageLoadingMsg();
+		$.mobile.showPageLoadingMsg();	
 		
 		var currentDir = directoryEntry; 
 		directoryEntry.getParent(function(par){
 			parentDir = par;
 			if( (parentDir.name == 'sdcard' && currentDir.name != 'sdcard') || parentDir.name != 'sdcard' ) {
+				$('#title').text(currentDir.name);
 				$('#bp-back-btn').show();
 			}
 		}, function(error){
@@ -407,7 +405,7 @@ var jlms = {
 		var directoryReader = directoryEntry.createReader();	
 		
 		directoryReader.readEntries(function(entries){		
-			var dirContent = $($.mobile.activePage.find('[data-role=content]').get(0));						
+			var dirContent = $($.mobile.activePage.find('[data-role=content]').get(0));
 			dirContent.empty();			 
 			var dirArr = new Array();
 			var fileArr = new Array(); 			
@@ -431,7 +429,7 @@ var jlms = {
 			dirContent.append(html).trigger('create');
 			$('.folder').off('click').on('click', function(e){
 				var dirName = $(this).text();
-				jlms.history.prevDirEntry = currentDir;
+				jlms.history.prevDirEntry = currentDir;				
 				currentDir.getDirectory(dirName, {create: false}, function(entry){
 					jlms.history.browser.push(currentDir);
 					jlms.listDir(entry);
@@ -978,7 +976,7 @@ $(document).ready( function() {
 					content += '<textarea cols="40" rows="8" name="text" id="text" placeholder="Description" data-theme="c"></textarea>';							
 					break;
 					case 3:												
-					content	+= '<div><span>'+jlms.registry.uploadedFilePath.substr(jlms.registry.uploadedFilePath.lastIndexOf('/')+1)+'</span></div>';
+					content	+= '<div><span id="file-path">'+jlms.registry.uploadedFilePath.substr(jlms.registry.uploadedFilePath.lastIndexOf('/')+1)+'</span></div>';
 					content	+= '<button type="button" class="file-btn" data-icon="grid" data-theme="a">File</button>';					
 					break;
 				}																		
@@ -991,10 +989,14 @@ $(document).ready( function() {
 					var file = $('#file-'+hwId).val();
 					$('#file-path-'+hwId).text(file.substr(file.lastIndexOf('/')+1)); 
 				});
-				*/
+				*/				
 				if(jlms.registry.uploadedFilePath.length>0) {
 					$(document).find('[data-role=panel]').panel( "open");
 				}
+				$('#file-path').on('click', function(e){					
+					jlms.registry.uploadedFilePath = '';
+					$('#file-path').text('');					
+				});				
 				$('.reply-btn').on('click', function(e){					
 					$(document).find('[data-role=panel]').panel( "toggle");
 				});				
@@ -1003,7 +1005,7 @@ $(document).ready( function() {
 					$.mobile.changePage("browser.html");
 				});				
 				$('.send-msg-btn').off('click').on('click', function(){					
-					var elType = $(this).data('type');
+					var elType = parseInt($(this).data('type'));
 					var elId = id;					
 				
 					if(elType == 3){						
@@ -1102,7 +1104,7 @@ $(document).ready( function() {
 				beforeSend: function (xhr){ 
 					xhr.setRequestHeader('Authorization', jlms.make_base_auth(access.name, access.pass)); 
 				},
-				success: function(data) {											
+				success: function(data) {					
 						var items = data.items;
 						if( !data.isLimit && items.length ) {
 							if( limitstart == 0 ) {
@@ -1170,13 +1172,14 @@ $(document).ready( function() {
 				content += data.message;
 				content += '<div data-role="panel" data-position="right" data-display="overlay" data-theme="b">';
 				if(data.type == 'mb') {//for mailbox only
-					content += '	<input id="subject" type="text" value="Re: '+data.subject+'" data-theme="c" placeholder="Subject"/>';						
+					//content += '	<input id="subject" type="text" value="Re: '+data.subject+'" data-theme="c" placeholder="Subject"/>';						
+					content += '	<div>Re: '+data.subject+'</div>';						
 					content += '	<textarea cols="40" rows="8" id="text" placeholder="Text" data-theme="c"></textarea>';
 				} else {
 					content += '	<input id="name" type="text" value="Re: '+data.subject+'" data-theme="c" placeholder="Name"/>';						
 					content += '	<textarea cols="40" rows="8" id="comment" placeholder="Comment" data-theme="c"></textarea>';
 				}
-				content += '	<div><span>'+jlms.registry.uploadedFilePath.substr(jlms.registry.uploadedFilePath.lastIndexOf('/')+1)+'</span></div>';						
+				content += '	<div><span id="file-path">'+jlms.registry.uploadedFilePath.substr(jlms.registry.uploadedFilePath.lastIndexOf('/')+1)+'</span></div>';				
 				content += '	<button type="button" class="file-btn" data-icon="grid" data-theme="a">File</button>';						
 				content += '	<button type="button" data-id="'+data.id+'" data-type="'+data.type+'" class="send-msg-btn" data-theme="b">Send</button>';										
 				content += '</div>';
@@ -1188,6 +1191,10 @@ $(document).ready( function() {
 				if(jlms.registry.uploadedFilePath.length>0) {
 					$(document).find('[data-role=panel]').panel( "open");
 				}
+				$('#file-path').on('click', function(e){					
+					jlms.registry.uploadedFilePath = '';
+					$('#file-path').text('');					
+				});				
 				$('.reply-btn').on('click', function(e){					
 					$(document).find('[data-role=panel]').panel( "toggle");
 				});				
@@ -1208,10 +1215,10 @@ $(document).ready( function() {
 						var name = $('#name').val();														
 						var comment = $('#comment').val();								
 						canSend = true;
-					}						
+					}				
 					
 					var filePath = jlms.registry.uploadedFilePath;
-					if(canSend) {							
+					if(canSend) {						
 						if( filePath.length ) {							
 								var options = new FileUploadOptions();
 								options.fileKey="file";
@@ -1240,7 +1247,7 @@ $(document).ready( function() {
 								//ft.upload(file, action, function(r) {											
 								ft.upload(filePath, action, function(r) {											
 									if(res = jlms.checkAlert(r.response)) {
-										alert(res);
+										alert('Wrong file format');
 									} else {					
 										$(document).find('[data-role=panel]').panel( "close");
 										alert('File was sent');										
@@ -1262,7 +1269,7 @@ $(document).ready( function() {
 									},
 									success: function (r) {
 										if(res = jlms.checkAlert(r)) {
-												alert(res);
+												//alert('Wrong file format');
 										} else {
 											$(document).find('[data-role=panel]').panel( "close");
 											alert('Message was sent');												
@@ -1364,7 +1371,14 @@ $(document).ready( function() {
 		show();
 	});
 	
-	$( document ).delegate("#browserPage", "pageshow", function() {	
+	$( document ).delegate("#browserPage", "pageshow", function() {			
+		$('#bp-back-btn').off('click').on('click', function(){
+			var dirName = $(this).text();						
+			jlms.listDir(jlms.history.browser.pop());		
+		});
+		$('#bp-close-btn').off('click').on('click', function(){
+			$.mobile.changePage( jlms.registry.parentPage );
+		});
 		$.mobile.loading("show");
 		jlms.listDir(jlms.fileSystem.root);
 		$.mobile.loading("hide");
