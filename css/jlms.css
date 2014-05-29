@@ -28,4 +28,23 @@
     padding-top:25px;
     text-align:center;	
 }
+.ul-li-arrow-down, .ul-li-arrow-up{		
+	width: 14px;
+	height: 18px;
+	position: absolute;		
+	right: 3.2em;
+	top: 50%;
+	margin-top: -.6em;
+	background-image:url('images/arrows-18-green-red.png');
+	-moz-background-size:29px 18px;
+	-o-background-size:29px 18px;
+	-webkit-background-size:29px 18px;
+	background-size:29px 18px;	    
+}
+.ul-li-arrow-up{
+	background-position: 0px 50%;	
+}
+.ul-li-arrow-down{
+	background-position:-14px 50%;	
+}
 /*filebrowser*/
